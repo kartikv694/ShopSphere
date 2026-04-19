@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.Infosys.ecommerceApplication.model.User;
 import com.Infosys.ecommerceApplication.service.userService;
 
+// Frontend Connect
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("api/auth")
