@@ -2,6 +2,6 @@
 
 Full Stack Ecommerce Project
 
-Frontend: React (Vite)
-Backend: Spring Boot
+Frontend Part: React (Vite)
+Backend Part : Spring Boot
 Database: MySQL

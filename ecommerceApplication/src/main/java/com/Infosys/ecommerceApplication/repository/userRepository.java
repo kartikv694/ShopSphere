@@ -1,3 +1,4 @@
+
 package com.Infosys.ecommerceApplication.repository;
 
 import java.util.Optional;
@@ -9,3 +10,4 @@ import com.Infosys.ecommerceApplication.model.User;
 public interface userRepository extends JpaRepository<User, Long> {
 	Optional<User> findByEmail(String email);
 }
+

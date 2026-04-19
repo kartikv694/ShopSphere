@@ -1,3 +1,4 @@
+
 package com.Infosys.ecommerceApplication.service;
 
 import java.util.List;
@@ -32,4 +33,5 @@ public class userService {
     public List<User> getAllUsers(){
         return repo.findAll();
     }
+
 }
