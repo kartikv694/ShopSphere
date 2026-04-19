@@ -17,6 +17,7 @@ public class User {
     private String name;
 
     @Email(message="Invalid email format")
+    @NotBlank(message="Email required")
     private String email;
 
     @Size(min=4,message="Password must be at least 4 characters")
