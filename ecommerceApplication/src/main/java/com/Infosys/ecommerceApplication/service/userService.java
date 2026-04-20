@@ -1,7 +1,7 @@
-
 package com.Infosys.ecommerceApplication.service;
 
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,24 +14,26 @@ public class userService {
 
     @Autowired
     private userRepository repo;
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    
+    @Autowired
+    private BCryptPasswordEncoder encoder;
+
     public User registerUser(User user){
-    	
-    	if(repo.findByEmail(user.getEmail()).isPresent()){
+
+        // check if email already exists
+        if(repo.findByEmail(user.getEmail()).isPresent()){
             throw new RuntimeException("Email already exists");
         }
-    	
-    	user.setPassword(
+
+        // hash password before saving
+        user.setPassword(
                 encoder.encode(user.getPassword())
-            );
-    	
+        );
+
         return repo.save(user);
     }
 
     public List<User> getAllUsers(){
         return repo.findAll();
     }
-
 }
