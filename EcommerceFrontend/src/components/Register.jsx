@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
+import { Link } from "react-router-dom";   
 import "react-toastify/dist/ReactToastify.css";
+import "./auth.css";
 
 function Register(){
 
@@ -64,72 +66,33 @@ function Register(){
 
  };
 
- return(
+ return (
+  <div className="auth-container">
+    <div className="auth-box">
 
-  <div>
+      <h2>Register</h2>
 
-   <h2>Register</h2>
+      <form onSubmit={handleSubmit}>
+        <input name="name" placeholder="Enter Name" value={user.name} onChange={handleChange} required />
+        <input name="email" placeholder="Enter Email" value={user.email} onChange={handleChange} required />
+        <input name="password" type="password" placeholder="Enter Password" value={user.password} onChange={handleChange} required />
 
-   <form onSubmit={handleSubmit}>
+        <select name="role" value={user.role} onChange={handleChange}>
+          <option value="CUSTOMER">Customer</option>
+          <option value="SELLER">Seller</option>
+        </select>
 
-    <input
-     name="name"
-     placeholder="Enter Name"
-     value={user.name}
-     onChange={handleChange}
-     required
-    />
+        <button>Register</button>
+      </form>
 
-    <br/><br/>
+      <p>
+        Already have an account? <Link to="/login">Login</Link>
+      </p>
 
-    <input
-     name="email"
-     placeholder="Enter Email"
-     value={user.email}
-     onChange={handleChange}
-     required
-    />
-
-    <br/><br/>
-
-    <input
-     name="password"
-     type="password"
-     placeholder="Enter Password"
-     value={user.password}
-     onChange={handleChange}
-     required
-    />
-
-    <br/><br/>
-
-    <label>Select Role:</label>
-
-    <br/>
-
-    <select
-     name="role"
-     value={user.role}
-     onChange={handleChange}
-    >
-
-     <option value="CUSTOMER">Customer</option>
-
-     <option value="SELLER">Seller</option>
-
-    </select>
-
-    <br/><br/>
-
-    <button>Register</button>
-
-   </form>
-
-   <ToastContainer/>
-
+      <ToastContainer />
+    </div>
   </div>
-
- );
+);
 
 }
 
