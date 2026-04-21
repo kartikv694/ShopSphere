@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
+// JWT authentication
 @Component
 public class jwtUtil {
 
