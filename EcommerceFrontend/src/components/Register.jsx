@@ -60,6 +60,7 @@ function Register(){
   }
   catch(error){
 
+   console.log(error);
    toast.error("Server Error ⚠");
 
   }
@@ -67,32 +68,76 @@ function Register(){
  };
 
  return (
+
+  <>
+
   <div className="auth-container">
+
     <div className="auth-box">
 
       <h2>Register</h2>
 
       <form onSubmit={handleSubmit}>
-        <input name="name" placeholder="Enter Name" value={user.name} onChange={handleChange} required />
-        <input name="email" placeholder="Enter Email" value={user.email} onChange={handleChange} required />
-        <input name="password" type="password" placeholder="Enter Password" value={user.password} onChange={handleChange} required />
 
-        <select name="role" value={user.role} onChange={handleChange}>
+        <input
+         name="name"
+         placeholder="Enter Name"
+         value={user.name}
+         onChange={handleChange}
+         required
+        />
+
+        <input
+         name="email"
+         placeholder="Enter Email"
+         value={user.email}
+         onChange={handleChange}
+         required
+        />
+
+        <input
+         name="password"
+         type="password"
+         placeholder="Enter Password"
+         value={user.password}
+         onChange={handleChange}
+         required
+        />
+
+        <select
+         name="role"
+         value={user.role}
+         onChange={handleChange}
+        >
           <option value="CUSTOMER">Customer</option>
           <option value="SELLER">Seller</option>
         </select>
 
         <button>Register</button>
+
       </form>
 
       <p>
-        Already have an account? <Link to="/login">Login</Link>
+        Already have an account?
+        <Link to="/login"> Login</Link>
       </p>
 
-      <ToastContainer />
     </div>
+
   </div>
-);
+
+  {/* Toast outside container */}
+  <ToastContainer
+   position="top-right"
+   autoClose={2000}
+   newestOnTop
+   closeOnClick
+   pauseOnHover
+  />
+
+  </>
+
+ );
 
 }
 

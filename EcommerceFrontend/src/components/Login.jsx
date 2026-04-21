@@ -39,6 +39,12 @@ function Login(){
 
    if(response.ok){
 
+    const token = await response.text();
+
+    console.log("JWT Token:", token);
+
+    localStorage.setItem("token", token);
+
     toast.success("Login Successful 🎉");
 
     setLoginData({
@@ -56,6 +62,7 @@ function Login(){
   }
   catch(error){
 
+   console.log(error);
    toast.error("Server Error ⚠");
 
   }
@@ -64,6 +71,8 @@ function Login(){
 
  return(
 
+  <>
+  
   <div className="auth-container">
 
    <div className="auth-box">
@@ -98,11 +107,19 @@ function Login(){
      <Link to="/register"> Register</Link>
     </p>
 
-    <ToastContainer/>
-
    </div>
 
   </div>
+
+  <ToastContainer
+   position="top-right"
+   autoClose={4000}
+   newestOnTop
+   closeOnClick
+   pauseOnHover
+  />
+
+  </>
 
  );
 
