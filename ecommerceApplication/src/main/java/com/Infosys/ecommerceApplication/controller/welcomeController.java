@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class welcomeController {
 	
-	@GetMapping("/Welcome")
+	@GetMapping("/api/welcome")
 	public String welcome() {
-		return "Welcome to first spring boot development project";
+	    return "This is a protected API ✅";
 	}
 	
 }

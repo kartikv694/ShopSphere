@@ -7,10 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import com.Infosys.ecommerceApplication.dto.AuthResponse;
 import com.Infosys.ecommerceApplication.dto.LoginRequest;
 import com.Infosys.ecommerceApplication.model.User;
 import com.Infosys.ecommerceApplication.repository.userRepository;
-import com.Infosys.ecommerceApplication.util.jwtUtil;
+import com.Infosys.ecommerceApplication.util.JwtUtil;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -21,12 +22,11 @@ public class loginController {
     private userRepository userRepository;
 
     @Autowired
-    private jwtUtil jwtUtil;
+    private JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest request) {
 
-        // check if user exists
         Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
 
         if (userOptional.isEmpty()) {
@@ -35,16 +35,15 @@ public class loginController {
 
         User user = userOptional.get();
 
-        // verify password using BCrypt
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
         if (!encoder.matches(request.getPassword(), user.getPassword())) {
             return ResponseEntity.badRequest().body("Invalid password");
         }
 
-        // generate JWT token
         String token = jwtUtil.generateToken(user.getEmail());
 
-        return ResponseEntity.ok(token);
+        // return DTO instead of raw token
+        return ResponseEntity.ok(new AuthResponse(token, user.getEmail()));
     }
 }
