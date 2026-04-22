@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Auth.css";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -11,6 +11,8 @@ function Login(){
   password:""
  });
 
+ const navigate = useNavigate();
+
  const handleChange = (e) =>{
 
   setLoginData({
@@ -20,54 +22,49 @@ function Login(){
 
  };
 
- const handleSubmit = async (e) =>{
-
+ const handleSubmit = async (e) => {
   e.preventDefault();
 
-  try{
+  try {
+    const response = await fetch(
+      "http://localhost:8080/api/auth/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(loginData)
+      }
+    );
 
-   const response = await fetch(
-    "http://localhost:8080/api/auth/login",
-    {
-     method:"POST",
-     headers:{
-      "Content-Type":"application/json"
-     },
-     body: JSON.stringify(loginData)
+    if (response.ok) {
+
+      const data = await response.json();
+      const token = data.token;
+
+    //   console.log("JWT Token:", token);
+
+      localStorage.setItem("token", token);
+
+      toast.success("Login Successful 🎉");
+
+      setLoginData({
+        email: "",
+        password: ""
+      });
+      setTimeout(() => {
+          navigate("/dashboard");
+        }, 1000);
+
+    } else {
+      toast.error("Invalid email or password ❌");
     }
-   );
 
-   if(response.ok){
-
-    const token = await response.text();
-
-    console.log("JWT Token:", token);
-
-    localStorage.setItem("token", token);
-
-    toast.success("Login Successful 🎉");
-
-    setLoginData({
-     email:"",
-     password:""
-    });
-
-   }
-   else{
-
-    toast.error("Invalid email or password ❌");
-
-   }
-
+  } catch (error) {
+    console.log(error);
+    toast.error("Server Error ⚠");
   }
-  catch(error){
-
-   console.log(error);
-   toast.error("Server Error ⚠");
-
-  }
-
- };
+};
 
  return(
 
