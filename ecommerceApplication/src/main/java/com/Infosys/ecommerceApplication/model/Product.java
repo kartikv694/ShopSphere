@@ -9,7 +9,6 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
 
     private String description;
@@ -18,17 +17,22 @@ public class Product {
 
     private String imageUrl;
 
+    // ✅ ADD THIS
+    private String category;
+
     // Constructors
     public Product() {}
 
-    public Product(String name, String description, double price, String imageUrl) {
+    public Product(String name, String description, double price, String imageUrl, String category) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.imageUrl = imageUrl;
+        this.category = category;
     }
 
     // Getters & Setters
+
     public Long getId() {
         return id;
     }
@@ -63,5 +67,14 @@ public class Product {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    // ✅ ADD THESE
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

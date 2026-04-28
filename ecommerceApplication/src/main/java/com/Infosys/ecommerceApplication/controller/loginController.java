@@ -29,21 +29,29 @@ public class loginController {
 
         Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
 
+        //  User not found
         if (userOptional.isEmpty()) {
             return ResponseEntity.badRequest().body("User not found");
         }
 
         User user = userOptional.get();
 
+        //  Password check
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
         if (!encoder.matches(request.getPassword(), user.getPassword())) {
             return ResponseEntity.badRequest().body("Invalid password");
         }
 
+        // Generate JWT token
         String token = jwtUtil.generateToken(user.getEmail());
 
-        // return DTO instead of raw token
-        return ResponseEntity.ok(new AuthResponse(token, user.getEmail()));
+        //  Send token + email + role
+        return ResponseEntity.ok(
+            new AuthResponse(
+                token,
+                user.getEmail(),
+                user.getRole().name() 
+            )
+        );
     }
 }
