@@ -39,12 +39,11 @@ function Login(){
 
     if (response.ok) {
 
-      const data = await response.json();
-      const token = data.token;
+     const data = await response.json();
 
-    //   console.log("JWT Token:", token);
-
-      localStorage.setItem("token", token);
+      // store token + role
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.role);
 
       toast.success("Login Successful 🎉");
 
@@ -52,9 +51,17 @@ function Login(){
         email: "",
         password: ""
       });
+
+      console.log("ROLE FROM BACKEND:", data.role);
+
+      // role-based redirect (temporary)
       setTimeout(() => {
-          navigate("/dashboard");
-        }, 1000);
+        if (data.role === "ADMIN") {
+          navigate("/admin-dashboard");
+        } else {
+          navigate("/customer"); 
+        }
+      }, 1000);
 
     } else {
       toast.error("Invalid email or password ❌");

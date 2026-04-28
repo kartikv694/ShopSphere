@@ -4,7 +4,11 @@ import Login from "./components/Login";
 import "./App.css";
 import Home from "./components/home";
 import PrivateRoute from "./components/PrivateRoute";
-import Dashboard from "./components/Dashboard";
+import Products from "./components/Products";
+import ProductDetails from "./components/ProductsDetails";
+import Navbar from "./components/Navbar"; 
+import CustomerDashboard from "./components/CustomerDashboard";
+import AdminDashboard from "./components/AdminDashboard";
 
 function App() {
 
@@ -12,18 +16,23 @@ function App() {
 
     <BrowserRouter>
 
+      <Navbar />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-
+        <Route path="/products" element={<Products />} />
+        <Route path="/products/:id" element={<ProductDetails />} />
+        <Route path="/customer" element={<CustomerDashboard />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+     
       {/* Protect Routes */}
       
       <Route
           path="/dashboard"
           element={
             <PrivateRoute>
-              <Dashboard />
             </PrivateRoute>
           }
         />
