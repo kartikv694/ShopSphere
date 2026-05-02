@@ -85,6 +85,13 @@
     <artifactId>jjwt-jackson</artifactId>
     <version>0.11.5</version>
   </dependency>
+  
+  <!--Cloud Storage-->
+  <dependency>
+    <groupId>com.cloudinary</groupId>
+    <artifactId>cloudinary-http44</artifactId>
+    <version>1.39.0</version>
+</dependency>
 
  </dependencies>
 

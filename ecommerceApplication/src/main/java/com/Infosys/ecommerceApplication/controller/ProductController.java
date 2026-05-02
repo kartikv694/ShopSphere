@@ -1,22 +1,19 @@
 package com.Infosys.ecommerceApplication.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.Infosys.ecommerceApplication.model.Product;
 import com.Infosys.ecommerceApplication.service.ProductService;
+import com.cloudinary.Cloudinary;
 
 @RestController
 @RequestMapping("/api/products")
@@ -26,39 +23,109 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    // ✅ Add Product
+    @Autowired
+    private Cloudinary cloudinary;
+
+    // =========================
+    // 🔥 ADD PRODUCT (MULTIPLE IMAGES)
+    // =========================
+    @PostMapping("/add")
+    public ResponseEntity<?> addProductWithImages(
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @RequestParam("price") double price,
+            @RequestParam("category") String category,
+            @RequestParam("images") List<MultipartFile> files
+    ) {
+        try {
+
+            List<String> imageUrls = new ArrayList<>();
+
+            // 🔥 Upload all images
+            for (MultipartFile file : files) {
+
+                if (!file.isEmpty()) {
+                    Map uploadResult = cloudinary.uploader()
+                            .upload(file.getBytes(), Map.of());
+
+                    String url = uploadResult.get("secure_url").toString();
+
+                    imageUrls.add(url);
+                }
+            }
+
+            // 🔥 Save product
+            Product product = new Product();
+            product.setName(name);
+            product.setDescription(description);
+            product.setPrice(price);
+            product.setCategory(category);
+            product.setImageUrls(imageUrls);
+
+            Product savedProduct = productService.addProduct(product);
+
+            return ResponseEntity.ok(savedProduct);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
+    }
+
+    // =========================
+    // OLD JSON API (KEEP IT)
+    // =========================
     @PostMapping
     public ResponseEntity<Product> addProduct(@RequestBody Product product) {
-        return new ResponseEntity<>(productService.addProduct(product), HttpStatus.CREATED);
+        return ResponseEntity.ok(productService.addProduct(product));
     }
 
-    // ✅ Get All Products (IMPORTANT — keep this)
+    // =========================
+    // GET ALL PRODUCTS
+    // =========================
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {
-        return new ResponseEntity<>(productService.getAllProducts(), HttpStatus.OK);
+        return ResponseEntity.ok(productService.getAllProducts());
     }
 
-    // ✅ Get Product by ID
+    // =========================
+    // GET BY ID
+    // =========================
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id) {
         Optional<Product> product = productService.getProductById(id);
 
-        if (product.isPresent()) {
-            return new ResponseEntity<>(product.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
-        }
+        return product
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(404).body("Product not found"));
     }
 
-    // ✅ Search
+    // =========================
+    // SEARCH
+    // =========================
     @GetMapping("/search")
     public ResponseEntity<List<Product>> searchProducts(@RequestParam String keyword) {
-        return new ResponseEntity<>(productService.searchProducts(keyword), HttpStatus.OK);
+        return ResponseEntity.ok(productService.searchProducts(keyword));
     }
 
-    // ✅ Category filter
+    // =========================
+    // CATEGORY FILTER
+    // =========================
     @GetMapping("/category")
     public ResponseEntity<List<Product>> getByCategory(@RequestParam String category) {
-        return new ResponseEntity<>(productService.getProductsByCategory(category), HttpStatus.OK);
+        return ResponseEntity.ok(productService.getProductsByCategory(category));
+    }
+
+    // =========================
+    // ADVANCED SEARCH
+    // =========================
+    @GetMapping("/search-advanced")
+    public ResponseEntity<List<Product>> searchByNameAndCategory(
+            @RequestParam String keyword,
+            @RequestParam String category) {
+
+        return ResponseEntity.ok(
+                productService.searchByNameAndCategory(keyword, category)
+        );
     }
 }

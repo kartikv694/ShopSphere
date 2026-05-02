@@ -1,5 +1,6 @@
 package com.Infosys.ecommerceApplication.model;
 
+import java.util.List;
 import jakarta.persistence.*;
 
 @Entity
@@ -9,25 +10,27 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
 
     private String description;
 
     private double price;
 
-    private String imageUrl;
-
-    // ✅ ADD THIS
     private String category;
+
+    //  IMPORTANT: Store multiple images
+    @ElementCollection
+    private List<String> imageUrls;
 
     // Constructors
     public Product() {}
 
-    public Product(String name, String description, double price, String imageUrl, String category) {
+    public Product(String name, String description, double price, List<String> imageUrls, String category) {
         this.name = name;
         this.description = description;
         this.price = price;
-        this.imageUrl = imageUrl;
+        this.imageUrls = imageUrls;
         this.category = category;
     }
 
@@ -61,20 +64,20 @@ public class Product {
         this.price = price;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    // ✅ ADD THESE
     public String getCategory() {
         return category;
     }
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    //  MULTIPLE IMAGES
+    public List<String> getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
     }
 }
