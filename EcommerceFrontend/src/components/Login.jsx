@@ -57,7 +57,7 @@ function Login(){
       // role-based redirect (temporary)
       setTimeout(() => {
         if (data.role === "ADMIN") {
-          navigate("/admin-dashboard");
+          navigate("/admin/dashboard");
         } else {
           navigate("/customer"); 
         }

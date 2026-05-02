@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import "./Dashboard.css";
 
 function AdminDashboard() {
@@ -6,29 +7,43 @@ function AdminDashboard() {
   const [totalProducts, setTotalProducts] = useState(0);
 
   useEffect(() => {
-    // TEMP dummy values (we connect backend next step)
-    setTotalUsers(5);
-    setTotalProducts(2);
+    fetchDashboard();
   }, []);
 
+  const fetchDashboard = async () => {
+    try {
+      const res = await axios.get("http://localhost:8080/api/dashboard");
+
+      setTotalUsers(res.data.totalUsers);
+      setTotalProducts(res.data.totalProducts);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    }
+  };
+
   return (
-    <div className="dashboard-container">
-      <h1>Admin Dashboard 📊</h1>
 
-      <div className="cards">
+      <div className="dashboard-container">
+        <h1 className="dashboard-title">Welcome to Admin Panel 👋</h1>
 
-        <div className="card">
-          <h2>Users</h2>
-          <p>{totalUsers}</p>
+        <p className="dashboard-subtitle">
+          Manage your products and users easily
+        </p>
+
+        <div className="cards">
+
+          <div className="card">
+            <h2>👥 Users</h2>
+            <p>{totalUsers}</p>
+          </div>
+
+          <div className="card">
+            <h2>📦 Products</h2>
+            <p>{totalProducts}</p>
+          </div>
+
         </div>
-
-        <div className="card">
-          <h2>Products</h2>
-          <p>{totalProducts}</p>
-        </div>
-
       </div>
-    </div>
   );
 }
 

@@ -1,0 +1,53 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #000;
+  color: #fff;
+  padding: 12px 20px;
+}
+
+/* Logo */
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+/* Search */
+.search-input {
+  width: 300px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  background: #f1f1f1;
+}
+
+/* Right section */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Profile icon */
+.profile {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Logout button */
+.logout-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #6b7280; /* grey */
+  color: #fff; /* white text */
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  background: #4b5563; /* darker grey */
+}

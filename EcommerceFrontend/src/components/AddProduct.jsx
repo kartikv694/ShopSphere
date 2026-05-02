@@ -1,0 +1,150 @@
+import { useState } from "react";
+import "./AddProduct.css";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+function AddProduct() {
+  const [images, setImages] = useState([null, null, null, null]);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [category, setCategory] = useState("");
+
+  const handleImageChange = (index, file) => {
+    const newImages = [...images];
+    newImages[index] = file;
+    setImages(newImages);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!images[0]) {
+      toast.error("Please upload at least one image ❌");
+      return;
+    }
+
+    if (!name || !description || !price || !category) {
+      toast.error("Please fill all fields ❌");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("category", category);
+    formData.append("images", images[0]);
+
+    const toastId = toast.loading("Uploading product...");
+
+    try {
+      await axios.post("http://localhost:8080/api/products/add", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.update(toastId, {
+        render: "Product Added Successfully 🚀",
+        type: "success",
+        isLoading: false,
+        autoClose: 2000,
+      });
+
+      // reset form
+      setImages([null, null, null, null]);
+      setName("");
+      setDescription("");
+      setPrice("");
+      setCategory("");
+
+    } catch (error) {
+      console.error(error);
+
+      toast.update(toastId, {
+        render: "Error adding product ❌",
+        type: "error",
+        isLoading: false,
+        autoClose: 2000,
+      });
+    }
+  };
+
+  return (
+    <div className="add-product-container">
+      <h2>Upload Image</h2>
+
+      {/* IMAGE GRID */}
+      <div className="image-grid">
+        {images.map((img, index) => (
+          <label key={index} className="upload-box">
+
+            {img ? (
+              <img src={URL.createObjectURL(img)} alt="preview" />
+            ) : (
+              <span>+</span>
+            )}
+
+            <input
+              type="file"
+              className="file-input"
+              onChange={(e) =>
+                handleImageChange(index, e.target.files[0])
+              }
+            />
+          </label>
+        ))}
+      </div>
+
+      {/* FORM */}
+      <form onSubmit={handleSubmit} className="form">
+
+        <input
+          type="text"
+          placeholder="Product Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+
+        <textarea
+          placeholder="Product Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+
+        {/* CATEGORY + PRICE */}
+        <div className="row">
+
+          <div className="input-group">
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option value="" disabled>Select Category</option>
+              <option value="electronics">Electronics</option>
+              <option value="foods">Foods</option>
+              <option value="beauty">Beauty</option>
+              <option value="toys">Toys</option>
+              <option value="kids">Kids</option>
+            </select>
+          </div>
+
+          <div className="input-group">
+            <input
+              type="number"
+              placeholder="Product Price"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+          </div>
+
+        </div>
+
+        <button type="submit">ADD</button>
+      </form>
+    </div>
+  );
+}
+
+export default AddProduct;
