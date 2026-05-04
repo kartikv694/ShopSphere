@@ -15,32 +15,37 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    // ✅ Add Product
+    // ADD
     public Product addProduct(Product product) {
         return productRepository.save(product);
     }
 
-    // ✅ Get All Products
+    // GET ALL
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    // ✅ Get Product by ID 
+    // GET BY ID
     public Optional<Product> getProductById(Long id) {
         return productRepository.findById(id);
     }
 
-    // ✅ Search Products
+    // DELETE
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
+    }
+
+    // SEARCH
     public List<Product> searchProducts(String keyword) {
         return productRepository.findByNameContainingIgnoreCase(keyword);
     }
 
-    // ✅ Get Products by Category
+    // CATEGORY
     public List<Product> getProductsByCategory(String category) {
         return productRepository.findByCategory(category);
     }
 
-    // ✅ NEW: Search by Name + Category
+    // ADV SEARCH
     public List<Product> searchByNameAndCategory(String keyword, String category) {
         return productRepository
                 .findByNameContainingIgnoreCaseAndCategory(keyword, category);

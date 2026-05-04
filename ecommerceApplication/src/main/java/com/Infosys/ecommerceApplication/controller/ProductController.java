@@ -27,7 +27,7 @@ public class ProductController {
     private Cloudinary cloudinary;
 
     // =========================
-    // 🔥 ADD PRODUCT (MULTIPLE IMAGES)
+    // ADD PRODUCT (MULTIPLE IMAGES)
     // =========================
     @PostMapping("/add")
     public ResponseEntity<?> addProductWithImages(
@@ -41,20 +41,16 @@ public class ProductController {
 
             List<String> imageUrls = new ArrayList<>();
 
-            // 🔥 Upload all images
             for (MultipartFile file : files) {
-
                 if (!file.isEmpty()) {
                     Map uploadResult = cloudinary.uploader()
                             .upload(file.getBytes(), Map.of());
 
                     String url = uploadResult.get("secure_url").toString();
-
                     imageUrls.add(url);
                 }
             }
 
-            // 🔥 Save product
             Product product = new Product();
             product.setName(name);
             product.setDescription(description);
@@ -62,22 +58,11 @@ public class ProductController {
             product.setCategory(category);
             product.setImageUrls(imageUrls);
 
-            Product savedProduct = productService.addProduct(product);
-
-            return ResponseEntity.ok(savedProduct);
+            return ResponseEntity.ok(productService.addProduct(product));
 
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
-    }
-
-    // =========================
-    // OLD JSON API (KEEP IT)
-    // =========================
-    @PostMapping
-    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
-        return ResponseEntity.ok(productService.addProduct(product));
     }
 
     // =========================
@@ -95,37 +80,82 @@ public class ProductController {
     public ResponseEntity<?> getProductById(@PathVariable Long id) {
         Optional<Product> product = productService.getProductById(id);
 
-        return product
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(404).body("Product not found"));
+        if (product.isPresent()) {
+            return ResponseEntity.ok(product.get());
+        }
+        return ResponseEntity.status(404).body("Product not found");
     }
 
-    // =========================
-    // SEARCH
-    // =========================
-    @GetMapping("/search")
-    public ResponseEntity<List<Product>> searchProducts(@RequestParam String keyword) {
-        return ResponseEntity.ok(productService.searchProducts(keyword));
-    }
+ // =========================
+ // UPDATE PRODUCT (WITH IMAGES)
+ // =========================
+ @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+ public ResponseEntity<?> updateProduct(
+         @PathVariable Long id,
+         @RequestParam("name") String name,
+         @RequestParam("description") String description,
+         @RequestParam("price") double price,
+         @RequestParam("category") String category,
+         @RequestParam(value = "images", required = false) List<MultipartFile> files
+ ) {
+     try {
+         Optional<Product> existing = productService.getProductById(id);
+
+         if (existing.isEmpty()) {
+             return ResponseEntity.status(404).body("Product not found");
+         }
+
+         Product product = existing.get();
+
+         // ✅ update basic fields
+         product.setName(name);
+         product.setDescription(description);
+         product.setPrice(price);
+         product.setCategory(category);
+
+         // ✅ handle images (ONLY if new images uploaded)
+         if (files != null && !files.isEmpty()) {
+
+             List<String> imageUrls = new ArrayList<>();
+
+             for (MultipartFile file : files) {
+                 if (!file.isEmpty()) {
+                     Map uploadResult = cloudinary.uploader()
+                             .upload(file.getBytes(), Map.of());
+
+                     String url = uploadResult.get("secure_url").toString();
+                     imageUrls.add(url);
+                 }
+             }
+
+             // replace old images
+             if (!imageUrls.isEmpty()) {
+                 product.setImageUrls(imageUrls);
+             }
+         }
+
+         return ResponseEntity.ok(productService.addProduct(product));
+
+     } catch (Exception e) {
+         return ResponseEntity.status(500).body("Error: " + e.getMessage());
+     }
+ }
 
     // =========================
-    // CATEGORY FILTER
+    // 🔥 DELETE PRODUCT
     // =========================
-    @GetMapping("/category")
-    public ResponseEntity<List<Product>> getByCategory(@RequestParam String category) {
-        return ResponseEntity.ok(productService.getProductsByCategory(category));
-    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
 
-    // =========================
-    // ADVANCED SEARCH
-    // =========================
-    @GetMapping("/search-advanced")
-    public ResponseEntity<List<Product>> searchByNameAndCategory(
-            @RequestParam String keyword,
-            @RequestParam String category) {
+        Optional<Product> product = productService.getProductById(id);
 
-        return ResponseEntity.ok(
-                productService.searchByNameAndCategory(keyword, category)
-        );
+        if (product.isPresent()) {
+
+            productService.deleteProduct(id);
+
+            return ResponseEntity.ok("Product deleted successfully");
+        }
+
+        return ResponseEntity.status(404).body("Product not found");
     }
 }

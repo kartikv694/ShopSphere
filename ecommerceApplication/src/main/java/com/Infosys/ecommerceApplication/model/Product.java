@@ -12,15 +12,17 @@ public class Product {
     private Long id;
 
     private String name;
-
     private String description;
-
     private double price;
-
     private String category;
 
-    //  IMPORTANT: Store multiple images
+    //  CORRECT MULTIPLE IMAGE MAPPING
     @ElementCollection
+    @CollectionTable(
+        name = "product_image_urls",
+        joinColumns = @JoinColumn(name = "product_id")
+    )
+    @Column(name = "image_urls")
     private List<String> imageUrls;
 
     // Constructors
@@ -35,49 +37,20 @@ public class Product {
     }
 
     // Getters & Setters
+    public Long getId() { return id; }
 
-    public Long getId() {
-        return id;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getName() {
-        return name;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public double getPrice() { return price; }
+    public void setPrice(double price) { this.price = price; }
 
-    public String getDescription() {
-        return description;
-    }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    //  MULTIPLE IMAGES
-    public List<String> getImageUrls() {
-        return imageUrls;
-    }
-
-    public void setImageUrls(List<String> imageUrls) {
-        this.imageUrls = imageUrls;
-    }
+    public List<String> getImageUrls() { return imageUrls; }
+    public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
 }

@@ -35,29 +35,32 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-    	String path = request.getServletPath();
+        String path = request.getServletPath();
+        System.out.println("Request Path: " + path);
 
-    	// Skip public APIs
-    	if (path.startsWith("/api/auth") || 
-    	    path.startsWith("/api/products") || 
-    	    path.startsWith("/api/dashboard")) {
-
-    	    filterChain.doFilter(request, response);
-    	    return;
-    	}
+        // ✅ SKIP PUBLIC APIs
+        if (isPublicEndpoint(path)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String authHeader = request.getHeader("Authorization");
 
         String token = null;
         String username = null;
 
-        // Check header
+        // ✅ Extract token
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            username = jwtUtil.extractUsername(token);
+
+            try {
+                username = jwtUtil.extractUsername(token);
+            } catch (Exception e) {
+                System.out.println("Invalid JWT: " + e.getMessage());
+            }
         }
 
-        // Validate token
+        // ✅ Validate token
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -71,12 +74,21 @@ public class JwtFilter extends OncePerRequestFilter {
                                 userDetails.getAuthorities()
                         );
 
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    // ✅ PUBLIC ROUTES
+    private boolean isPublicEndpoint(String path) {
+        return path.startsWith("/api/auth") ||
+               path.startsWith("/api/products") ||
+               path.startsWith("/api/dashboard");
     }
 }
