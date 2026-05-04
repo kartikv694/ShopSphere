@@ -185,11 +185,11 @@ function EditProduct() {
             setProduct({ ...product, category: e.target.value })
           }
         >
-          <option>electronics</option>
-          <option>foods</option>
-          <option>beauty</option>
-          <option>toys</option>
-          <option>kids</option>
+          <option>Electronics</option>
+          <option>Foods</option>
+          <option>Fashion & Beauty</option>
+          <option>Toys</option>
+          <option>Kids</option>
         </select>
 
         <button type="submit">Update</button>

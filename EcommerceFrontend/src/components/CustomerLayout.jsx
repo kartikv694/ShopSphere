@@ -1,13 +1,13 @@
-import Navbar from "./Navbar";
-import { useState } from "react";
-
+import CustomerNavbar from "./CustomerNavbar";
+import CustomerSubNavbar from "./CustomerSubNavbar";
 
 const CustomerLayout = ({ children }) => {
   return (
-    <div>
-      <Navbar />
+    <>
+      <CustomerNavbar />
+      <CustomerSubNavbar/>
       {children}
-    </div>
+    </>
   );
 };
 

@@ -14,6 +14,7 @@ import AddProduct from "./components/AddProduct";
 import EditProduct from "./components/EditProduct"; 
 import { SearchContext, SearchProvider } from "./components/SearchContext";
 import PrivateRoute from "./components/PrivateRoute";
+import CustomerRoute from "./components/CustomerRoute";
 
 import "./App.css";
 
@@ -33,9 +34,19 @@ function App() {
 
         {/* CUSTOMER */}
         <Route path="/" element={<CustomerLayout><Home /></CustomerLayout>} />
-        <Route path="/products" element={<CustomerLayout><Products /></CustomerLayout>} />
-        <Route path="/products/:id" element={<CustomerLayout><ProductDetails /></CustomerLayout>} />
-        <Route path="/customer" element={<CustomerLayout><CustomerDashboard /></CustomerLayout>} />
+        <Route path="/customer/products" element={<CustomerLayout><Products /></CustomerLayout>} />
+        <Route path="/customer/products/:id" element={<CustomerLayout><ProductDetails /></CustomerLayout>} />
+
+          <Route
+            path="/customer/dashboard"
+            element={
+              <CustomerRoute>
+                <CustomerLayout>
+                  <CustomerDashboard />
+                </CustomerLayout>
+              </CustomerRoute>
+            }
+          />
 
         {/* ADMIN */}
         <Route

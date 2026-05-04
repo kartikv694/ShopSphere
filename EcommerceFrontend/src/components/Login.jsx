@@ -44,6 +44,7 @@ function Login(){
       // store token + role
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
+      localStorage.setItem("user", JSON.stringify(data));
 
       toast.success("Login Successful 🎉");
 
@@ -59,7 +60,7 @@ function Login(){
         if (data.role === "ADMIN") {
           navigate("/admin/dashboard");
         } else {
-          navigate("/customer"); 
+          navigate("/customer/dashboard"); 
         }
       }, 1000);
 
