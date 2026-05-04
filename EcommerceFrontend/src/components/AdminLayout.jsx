@@ -1,25 +1,25 @@
-import Navbar from "../components/Navbar";
-import Sidebar from "../components/Sidebar";
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
+import { useState } from "react";
+import React from "react";
 import "./AdminLayout.css";
 
 const AdminLayout = ({ children }) => {
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
+
   return (
     <div className="admin-layout">
-      
-      {/* Top Navbar */}
-      <Navbar />
+      <Navbar setSearch={setSearch} setCategory={setCategory} />
 
-      {/* Main Layout */}
       <div className="admin-body">
-        
-        {/* Sidebar */}
         <Sidebar />
 
-        {/* Content Area */}
         <div className="admin-content">
-          {children}
+          {React.isValidElement(children)
+            ? React.cloneElement(children, { search, category })
+            : children}
         </div>
-
       </div>
     </div>
   );

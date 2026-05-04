@@ -1,0 +1,4 @@
+@import "flowbite"; /* 🔥 REQUIRED */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

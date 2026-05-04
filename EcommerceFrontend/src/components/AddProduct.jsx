@@ -10,72 +10,83 @@ function AddProduct() {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
 
+  //  Handle image selection
   const handleImageChange = (index, file) => {
     const newImages = [...images];
     newImages[index] = file;
     setImages(newImages);
   };
 
+  // Submit form
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!images[0]) {
-      toast.error("Please upload at least one image ❌");
-      return;
-    }
+  const validImages = images.filter((img) => img !== null);
 
-    if (!name || !description || !price || !category) {
-      toast.error("Please fill all fields ❌");
-      return;
-    }
+  if (validImages.length === 0) {
+    toast.error("Please upload at least one image ❌");
+    return;
+  }
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("description", description);
-    formData.append("price", price);
-    formData.append("category", category);
-    formData.append("images", images[0]);
+  if (!name || !description || !price || !category) {
+    toast.error("Please fill all fields ❌");
+    return;
+  }
 
-    const toastId = toast.loading("Uploading product...");
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("description", description);
+  formData.append("price", price);
+  formData.append("category", category);
 
-    try {
-      await axios.post("http://localhost:8080/api/products/add", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+  validImages.forEach((img) => {
+    formData.append("images", img);
+  });
 
-      toast.update(toastId, {
-        render: "Product Added Successfully 🚀",
-        type: "success",
-        isLoading: false,
-        autoClose: 2000,
-      });
+  const toastId = toast.loading("Uploading product...");
 
-      // reset form
-      setImages([null, null, null, null]);
-      setName("");
-      setDescription("");
-      setPrice("");
-      setCategory("");
+  try {
+    // ❌ REMOVE headers completely
+    await axios.post(
+      "http://localhost:8080/api/products/add",
+      formData
+    );
 
-    } catch (error) {
-      console.error(error);
+    toast.update(toastId, {
+      render: "Product Added Successfully 🚀",
+      type: "success",
+      isLoading: false,
+      autoClose: 2000,
+    });
 
-      toast.update(toastId, {
-        render: "Error adding product ❌",
-        type: "error",
-        isLoading: false,
-        autoClose: 2000,
-      });
-    }
-  };
+    // ✅ optional navigation delay
+    setTimeout(() => {
+      // navigate("/admin/products"); (if you want)
+    }, 1500);
 
+    // reset
+    setImages([null, null, null, null]);
+    setName("");
+    setDescription("");
+    setPrice("");
+    setCategory("");
+
+  } catch (error) {
+    console.error(error);
+
+    toast.update(toastId, {
+      render: "Error adding product ❌",
+      type: "error",
+      isLoading: false,
+      autoClose: 2000,
+    });
+  }
+};
   return (
     <div className="add-product-container">
-      <h2>Upload Image</h2>
+      <h2>Upload Images</h2>
 
-      {/* IMAGE GRID */}
+      {/* 🔥 IMAGE GRID */}
       <div className="image-grid">
         {images.map((img, index) => (
           <label key={index} className="upload-box">
@@ -88,16 +99,27 @@ function AddProduct() {
 
             <input
               type="file"
+              multiple   // 👈 ADD THIS
               className="file-input"
-              onChange={(e) =>
-                handleImageChange(index, e.target.files[0])
-              }
+              onChange={(e) => {
+                const files = Array.from(e.target.files);
+
+                const newImages = [...images];
+
+                files.forEach((file, i) => {
+                  if (index + i < 4) {
+                    newImages[index + i] = file;
+                  }
+                });
+
+                setImages(newImages);
+              }}
             />
           </label>
         ))}
       </div>
 
-      {/* FORM */}
+      {/* 🔥 FORM */}
       <form onSubmit={handleSubmit} className="form">
 
         <input

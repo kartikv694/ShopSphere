@@ -1,9 +1,11 @@
-import Navbar from "../components/Navbar";
+import Navbar from "./Navbar";
+import { useState } from "react";
+
 
 const CustomerLayout = ({ children }) => {
   return (
     <div>
-      <Navbar />   {/* Customer Navbar */}
+      <Navbar />
       {children}
     </div>
   );

@@ -11,18 +11,19 @@ import CustomerDashboard from "./components/CustomerDashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import ProductList from "./components/ProductList";
 import AddProduct from "./components/AddProduct";
-
+import EditProduct from "./components/EditProduct"; 
+import { SearchContext, SearchProvider } from "./components/SearchContext";
 import PrivateRoute from "./components/PrivateRoute";
-
 
 import "./App.css";
 
-{/* Layouts */}
+/* Layouts */
 import AdminLayout from "./components/AdminLayout";
 import CustomerLayout from "./components/CustomerLayout";
 
 function App() {
   return (
+    <SearchProvider>
     <BrowserRouter>
       <Routes>
 
@@ -39,17 +40,47 @@ function App() {
         {/* ADMIN */}
         <Route
           path="/admin/dashboard"
-          element={<PrivateRoute><AdminLayout><AdminDashboard /></AdminLayout></PrivateRoute>}
+          element={
+            <PrivateRoute>
+              <AdminLayout>
+                <AdminDashboard />
+              </AdminLayout>
+            </PrivateRoute>
+          }
         />
 
         <Route
           path="/admin/products"
-          element={<PrivateRoute><AdminLayout><ProductList /></AdminLayout></PrivateRoute>}
+          element={
+            <PrivateRoute>
+              <AdminLayout>
+                <ProductList />
+              </AdminLayout>
+            </PrivateRoute>
+          }
         />
 
         <Route
           path="/admin/add-product"
-          element={<PrivateRoute><AdminLayout><AddProduct /></AdminLayout></PrivateRoute>}
+          element={
+            <PrivateRoute>
+              <AdminLayout>
+                <AddProduct />
+              </AdminLayout>
+            </PrivateRoute>
+          }
+        />
+
+        {/* ✅ NEW EDIT ROUTE */}
+        <Route
+          path="/admin/edit/:id"
+          element={
+            <PrivateRoute>
+              <AdminLayout>
+                <EditProduct />
+              </AdminLayout>
+            </PrivateRoute>
+          }
         />
 
       </Routes>
@@ -62,6 +93,7 @@ function App() {
         pauseOnHover
       />
     </BrowserRouter>
+    </SearchProvider>
   );
 }
 

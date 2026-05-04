@@ -1,3 +1,4 @@
+/* NAVBAR */
 .navbar {
   display: flex;
   align-items: center;
@@ -7,47 +8,85 @@
   padding: 12px 20px;
 }
 
-/* Logo */
+/* LOGO */
 .logo {
   font-size: 22px;
   font-weight: bold;
 }
 
-/* Search */
-.search-input {
-  width: 300px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: none;
-  outline: none;
+/* SEARCH CONTAINER */
+.search-container {
+  display: flex;
+  align-items: center;
   background: #f1f1f1;
+  border-radius: 30px;
+  overflow: hidden;
+  padding: 2px; /* smooth inner spacing */
 }
 
-/* Right section */
+
+/* INPUT */
+.search-input {
+  border: none;
+  outline: none;
+  padding: 8px 14px;
+  width: 250px;
+  background: transparent;
+  color: #000;
+}
+
+/* 🔍 ICON (NO BOX LOOK) */
+.search-btn {
+  border: none;
+  background: transparent; /* 🔥 important */
+  color: #555;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.search-btn:hover {
+  background: #e5e7eb;
+}
+
+/* CATEGORY DROPDOWN */
+.category-select {
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  background: transparent; /* same background */
+  color: #000;
+  cursor: pointer;
+
+  /* soft divider */
+  border-left: 1px solid #ddd;
+}
+
+/* RIGHT SECTION */
 .nav-right {
   display: flex;
   align-items: center;
   gap: 15px;
 }
 
-/* Profile icon */
+/* PROFILE ICON */
 .profile {
   font-size: 20px;
   cursor: pointer;
 }
 
-/* Logout button */
+/* LOGOUT BUTTON */
 .logout-btn {
   padding: 6px 14px;
   border: none;
   border-radius: 6px;
-  background: #6b7280; /* grey */
-  color: #fff; /* white text */
+  background: #6b7280;
+  color: #fff;
   cursor: pointer;
   font-weight: 500;
   transition: 0.3s;
 }
 
 .logout-btn:hover {
-  background: #4b5563; /* darker grey */
+  background: #4b5563;
 }
