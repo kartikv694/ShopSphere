@@ -68,7 +68,7 @@ public class ProductController {
     // =========================
     // GET ALL PRODUCTS
     // =========================
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<Product>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
     }
@@ -158,4 +158,41 @@ public class ProductController {
 
         return ResponseEntity.status(404).body("Product not found");
     }
+    
+ // =========================
+ // SEARCH PRODUCTS
+ // =========================
+ @GetMapping("/search")
+ public ResponseEntity<List<Product>> searchProducts(
+         @RequestParam String keyword
+ ) {
+     return ResponseEntity.ok(
+             productService.searchProducts(keyword)
+     );
+ }
+
+ // =========================
+ // GET PRODUCTS BY CATEGORY
+ // =========================
+ @GetMapping("/category/{category}")
+ public ResponseEntity<List<Product>> getProductsByCategory(
+         @PathVariable String category
+ ) {
+     return ResponseEntity.ok(
+             productService.getProductsByCategory(category)
+     );
+ }
+
+ // =========================
+ // SEARCH + CATEGORY FILTER
+ // =========================
+ @GetMapping("/filter")
+ public ResponseEntity<List<Product>> filterProducts(
+         @RequestParam String keyword,
+         @RequestParam String category
+ ) {
+     return ResponseEntity.ok(
+             productService.searchByNameAndCategory(keyword, category)
+     );
+ }
 }

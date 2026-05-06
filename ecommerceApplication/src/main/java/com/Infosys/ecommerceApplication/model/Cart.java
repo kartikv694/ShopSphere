@@ -11,19 +11,20 @@ public class Cart {
 
     private Long userId;
 
-    private Long productId;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
     private int quantity;
 
-    // Constructors
     public Cart() {}
 
-    public Cart(Long userId, Long productId, int quantity) {
+    public Cart(Long userId, Product product, int quantity) {
         this.userId = userId;
-        this.productId = productId;
+        this.product = product;
         this.quantity = quantity;
     }
-
+    
     // Getters & Setters
     public Long getId() {
         return id;
@@ -33,9 +34,10 @@ public class Cart {
         return userId;
     }
 
-    public Long getProductId() {
-        return productId;
+    public Product getProduct() {
+        return product;
     }
+
 
     public int getQuantity() {
         return quantity;
@@ -49,8 +51,8 @@ public class Cart {
         this.userId = userId;
     }
 
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     public void setQuantity(int quantity) {

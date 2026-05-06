@@ -8,9 +8,15 @@ import com.Infosys.ecommerceApplication.model.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
+    // 🔍 Search by product name
     List<Product> findByNameContainingIgnoreCase(String keyword);
 
-    List<Product> findByCategory(String category);
-    
-    List<Product> findByNameContainingIgnoreCaseAndCategory(String keyword, String category);
+    // 📂 Category filter
+    List<Product> findByCategoryIgnoreCase(String category);
+
+    // 🔥 Search + Category filter
+    List<Product> findByNameContainingIgnoreCaseAndCategoryIgnoreCase(
+            String keyword,
+            String category
+    );
 }

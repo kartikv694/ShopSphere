@@ -35,15 +35,6 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getServletPath();
-        System.out.println("Request Path: " + path);
-
-        // ✅ SKIP PUBLIC APIs
-        if (isPublicEndpoint(path)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String authHeader = request.getHeader("Authorization");
 
         String token = null;
@@ -64,15 +55,23 @@ public class JwtFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            
+            System.out.println("Authorities: " + userDetails.getAuthorities());
 
             if (jwtUtil.validateToken(token, userDetails.getUsername())) {
 
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+            	UsernamePasswordAuthenticationToken authToken =
+            	        new UsernamePasswordAuthenticationToken(
+            	                userDetails,
+            	                null,
+            	                userDetails.getAuthorities() // must contain ROLE_ADMIN
+            	        );
+
+            	authToken.setDetails(
+            	        new WebAuthenticationDetailsSource().buildDetails(request)
+            	);
+
+            	SecurityContextHolder.getContext().setAuthentication(authToken);
 
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
@@ -83,12 +82,5 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    // ✅ PUBLIC ROUTES
-    private boolean isPublicEndpoint(String path) {
-        return path.startsWith("/api/auth") ||
-               path.startsWith("/api/products") ||
-               path.startsWith("/api/dashboard");
     }
 }

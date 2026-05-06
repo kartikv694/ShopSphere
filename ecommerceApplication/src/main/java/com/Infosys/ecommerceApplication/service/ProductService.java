@@ -3,6 +3,7 @@ package com.Infosys.ecommerceApplication.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.Infosys.ecommerceApplication.model.Product;
 import com.Infosys.ecommerceApplication.repository.ProductRepository;
 import com.cloudinary.Cloudinary;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProductService {
@@ -36,21 +39,23 @@ public class ProductService {
     }
 
     // ✅ DELETE (NON-BLOCKING CLOUDINARY)
+    @Transactional
     public void deleteProduct(Long id) {
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        // 🗑 Delete product from DB FIRST (fast response)
+        // ✅ Access images BEFORE delete (while session is open)
+        List<String> images = product.getImageUrls();
+
+        // delete DB
         productRepository.delete(product);
 
-        // 🔥 Delete images in background (non-blocking)
-        if (product.getImageUrls() != null && !product.getImageUrls().isEmpty()) {
-            new Thread(() -> {
-                for (String imageUrl : product.getImageUrls()) {
-                    deleteImageFromCloudinary(imageUrl);
-                }
-            }).start();
+        // delete cloudinary
+        if (images != null && !images.isEmpty()) {
+            for (String imageUrl : images) {
+                deleteImageFromCloudinary(imageUrl);
+            }
         }
     }
 
@@ -61,13 +66,16 @@ public class ProductService {
 
     // ✅ CATEGORY
     public List<Product> getProductsByCategory(String category) {
-        return productRepository.findByCategory(category);
+        return productRepository.findByCategoryIgnoreCase(category);
     }
 
     // ✅ ADV SEARCH
     public List<Product> searchByNameAndCategory(String keyword, String category) {
         return productRepository
-                .findByNameContainingIgnoreCaseAndCategory(keyword, category);
+                .findByNameContainingIgnoreCaseAndCategoryIgnoreCase(
+                        keyword,
+                        category
+                );
     }
 
     // ==============================
@@ -75,15 +83,16 @@ public class ProductService {
     // ==============================
 
     private String extractPublicId(String imageUrl) {
-        if (imageUrl == null || imageUrl.isEmpty()) return null;
-
         try {
-            String[] parts = imageUrl.split("/");
-            String fileName = parts[parts.length - 1];
+            String[] parts = imageUrl.split("/upload/");
+            String path = parts[1]; // v1778014755/cctpb3rauji1r694nauf.jpg
 
-            if (!fileName.contains(".")) return fileName;
+            // remove version
+            path = path.substring(path.indexOf("/") + 1);
 
-            return fileName.substring(0, fileName.lastIndexOf("."));
+            // remove extension
+            return path.substring(0, path.lastIndexOf("."));
+
         } catch (Exception e) {
             return null;
         }
@@ -93,12 +102,15 @@ public class ProductService {
         try {
             String publicId = extractPublicId(imageUrl);
 
+            System.out.println("Deleting URL: " + imageUrl);
+            System.out.println("Extracted public_id: " + publicId);
+
             if (publicId != null) {
-                cloudinary.uploader().destroy(publicId, new HashMap<>());
+                Map result = cloudinary.uploader().destroy(publicId, new HashMap<>());
+                System.out.println("Cloudinary result: " + result);
             }
 
         } catch (Exception e) {
-            System.out.println("Error deleting image: " + imageUrl);
             e.printStackTrace();
         }
     }

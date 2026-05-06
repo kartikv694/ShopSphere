@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,7 +21,6 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
-    // ✅ CORS CONFIG
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -36,13 +36,11 @@ public class SecurityConfig {
         return source;
     }
 
-    // ✅ PASSWORD ENCODER
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ SECURITY FILTER
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -50,23 +48,29 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> {})
 
-            // 🔥 Stateless (JWT)
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
 
             .authorizeHttpRequests(auth -> auth
 
-                // ✅ PUBLIC ROUTES
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/products/**").permitAll()   // 🔥 FIXED
-                .requestMatchers("/api/dashboard/**").permitAll()
+            	    // ✅ PUBLIC
+            	    .requestMatchers("/api/auth/**").permitAll()
+            	    .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+            	    .requestMatchers("/api/cart/**").permitAll()   // ✅ ADD THIS
+            	    .requestMatchers("/api/products/all").permitAll()
 
-                // 🔒 EVERYTHING ELSE
-                .anyRequest().authenticated()
-            )
+            	    // 🔒 ADMIN ONLY
+            	    .requestMatchers("/api/products/**").hasRole("ADMIN")
+            	    .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
+            	    .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
+            	    .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+            	    .requestMatchers("/api/dashboard/**").hasRole("ADMIN")
 
-            // ✅ JWT FILTER
+            	    // 🔒 EVERYTHING ELSE
+            	    .anyRequest().authenticated()
+            	)
+            
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

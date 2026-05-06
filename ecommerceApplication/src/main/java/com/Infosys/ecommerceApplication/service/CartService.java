@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.Infosys.ecommerceApplication.model.Cart;
+import com.Infosys.ecommerceApplication.model.Product;
 import com.Infosys.ecommerceApplication.repository.CartRepository;
+import com.Infosys.ecommerceApplication.repository.ProductRepository;
 
 
 
@@ -14,19 +16,23 @@ public class CartService {
 
     @Autowired
     private CartRepository cartRepository;
+    
+    @Autowired
+    private ProductRepository productRepository;
 
     // ✅ 1. Add to Cart
     public Cart addToCart(Long userId, Long productId, int quantity) {
 
-        Cart existingCartItem = cartRepository.findByUserIdAndProductId(userId, productId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        Cart existingCartItem = cartRepository.findByUserIdAndProduct_Id(userId, productId);
 
         if (existingCartItem != null) {
-            // Product already exists → update quantity
             existingCartItem.setQuantity(existingCartItem.getQuantity() + quantity);
             return cartRepository.save(existingCartItem);
         } else {
-            // New product → create entry
-            Cart newCartItem = new Cart(userId, productId, quantity);
+            Cart newCartItem = new Cart(userId, product, quantity);
             return cartRepository.save(newCartItem);
         }
     }
@@ -39,7 +45,7 @@ public class CartService {
     // ✅ 3. Update Quantity
     public Cart updateQuantity(Long userId, Long productId, int quantity) {
 
-        Cart cartItem = cartRepository.findByUserIdAndProductId(userId, productId);
+        Cart cartItem = cartRepository.findByUserIdAndProduct_Id(userId, productId);
 
         if (cartItem != null) {
             cartItem.setQuantity(quantity);
@@ -52,7 +58,7 @@ public class CartService {
     // ✅ 4. Remove Single Item
     public void removeItem(Long userId, Long productId) {
 
-        Cart cartItem = cartRepository.findByUserIdAndProductId(userId, productId);
+        Cart cartItem = cartRepository.findByUserIdAndProduct_Id(userId, productId);
 
         if (cartItem != null) {
             cartRepository.delete(cartItem);
