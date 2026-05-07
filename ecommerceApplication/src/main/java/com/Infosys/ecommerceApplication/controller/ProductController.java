@@ -178,6 +178,16 @@ public class ProductController {
  public ResponseEntity<List<Product>> getProductsByCategory(
          @PathVariable String category
  ) {
+
+     // ALL PRODUCTS
+     if(category.equalsIgnoreCase("all")) {
+
+         return ResponseEntity.ok(
+                 productService.getAllProducts()
+         );
+     }
+
+     // CATEGORY PRODUCTS
      return ResponseEntity.ok(
              productService.getProductsByCategory(category)
      );

@@ -58,10 +58,8 @@ public class SecurityConfig {
             	    .requestMatchers("/api/auth/**").permitAll()
             	    .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
             	    .requestMatchers("/api/cart/**").permitAll()   // ✅ ADD THIS
-            	    .requestMatchers("/api/products/all").permitAll()
 
             	    // 🔒 ADMIN ONLY
-            	    .requestMatchers("/api/products/**").hasRole("ADMIN")
             	    .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
             	    .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
             	    .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
