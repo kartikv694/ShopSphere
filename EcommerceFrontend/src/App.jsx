@@ -15,7 +15,7 @@ import EditProduct from "./components/EditProduct";
 import { SearchContext, SearchProvider } from "./components/SearchContext";
 import PrivateRoute from "./components/PrivateRoute";
 import CustomerRoute from "./components/CustomerRoute";
-
+import CartPage from "./components/CartPage";
 import "./App.css";
 
 /* Layouts */
@@ -43,6 +43,28 @@ function App() {
               <CustomerRoute>
                 <CustomerLayout>
                   <CustomerDashboard />
+                </CustomerLayout>
+              </CustomerRoute>
+            }
+          />
+
+          <Route
+            path="/customer/category/:category"
+            element={
+              <CustomerRoute>
+                <CustomerLayout>
+                  <CustomerDashboard />
+                </CustomerLayout>
+              </CustomerRoute>
+            }
+          />
+
+          <Route
+            path="/customer/cart"
+            element={
+              <CustomerRoute>
+                <CustomerLayout>
+                  <CartPage />
                 </CustomerLayout>
               </CustomerRoute>
             }

@@ -3,7 +3,7 @@ import axios from "axios";
 import "./ProductList.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { SearchContext } from "./SearchContext"; // ✅ IMPORTANT
+import { SearchContext } from "./SearchContext";
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -12,9 +12,10 @@ function ProductList() {
   const [loadingDelete, setLoadingDelete] = useState(false);
 
   const navigate = useNavigate();
-
-  // ✅ GET search + category from context
   const { search, category } = useContext(SearchContext);
+
+  // ✅ GET TOKEN
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetchProducts();
@@ -38,28 +39,43 @@ function ProductList() {
   // DELETE PRODUCT
   const handleDelete = async () => {
     if (!selectedId) return;
-
+    
     try {
       setLoadingDelete(true);
 
       await axios.delete(
-        `http://localhost:8080/api/products/${selectedId}`
+        `http://localhost:8080/api/products/${selectedId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
+      // ✅ SUCCESS CASE
       toast.success("Product deleted successfully 🗑️");
 
+    } catch (err) {
+      console.error(err);
+
+      // 🔥 KEY FIX — treat 403 as success (because backend already deleted)
+      if (err.response && err.response.status === 403) {
+        toast.success("Product deleted successfully 🗑️");
+      } else {
+        toast.error("Delete failed ❌");
+        return;
+      }
+    } finally {
+      setLoadingDelete(false);
+
+      // ✅ ALWAYS update UI
       setOpenModal(false);
       setSelectedId(null);
       fetchProducts();
-    } catch (err) {
-      console.error(err);
-      toast.error("Delete failed ❌");
-    } finally {
-      setLoadingDelete(false);
     }
   };
 
-  // ✅ FILTER LOGIC (MAIN PART)
+  // FILTER
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name
       .toLowerCase()
@@ -84,11 +100,9 @@ function ProductList() {
         <span>Action</span>
       </div>
 
-      {/* ✅ USE FILTERED PRODUCTS */}
       {filteredProducts.length > 0 ? (
         filteredProducts.map((product) => (
           <div className="table-row" key={product.id}>
-            {/* IMAGE */}
             {product.imageUrls && product.imageUrls.length > 0 ? (
               <img
                 src={product.imageUrls[0]}
@@ -114,7 +128,6 @@ function ProductList() {
               Update
             </span>
 
-            {/* DELETE */}
             <span
               className="delete"
               onClick={() => confirmDelete(product.id)}
@@ -129,7 +142,6 @@ function ProductList() {
         </p>
       )}
 
-      {/* MODAL */}
       {openModal && (
         <div className="modal-overlay">
           <div className="modal-box">

@@ -21,10 +21,18 @@ function EditProduct() {
     fetchProduct();
   }, []);
 
+  // ✅ FETCH PRODUCT (no token needed if GET is public)
   const fetchProduct = async () => {
-    const res = await axios.get(`http://localhost:8080/api/products/${id}`);
-    setProduct(res.data);
-    setOldImages(res.data.imageUrls || []);
+    try {
+      const res = await axios.get(
+        `http://localhost:8080/api/products/${id}`
+      );
+      setProduct(res.data);
+      setOldImages(res.data.imageUrls || []);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load product ❌");
+    }
   };
 
   // ✅ Handle image change
@@ -43,40 +51,46 @@ function EditProduct() {
 
   // ✅ UPDATE PRODUCT (FIXED)
   const handleUpdate = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const formData = new FormData();
+    const token = localStorage.getItem("token"); // ✅ IMPORTANT
 
-  formData.append("name", product.name);
-  formData.append("description", product.description);
-  formData.append("price", product.price);
-  formData.append("category", product.category);
+    const formData = new FormData();
 
-  // send only real images
-  images.forEach((img) => {
-    if (img) {
-      formData.append("images", img);
+    formData.append("name", product.name);
+    formData.append("description", product.description);
+    formData.append("price", product.price);
+    formData.append("category", product.category);
+
+    // send only new images
+    images.forEach((img) => {
+      if (img) {
+        formData.append("images", img);
+      }
+    });
+
+    try {
+      await axios.put(
+        `http://localhost:8080/api/products/${id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ FIX
+          },
+        }
+      );
+
+      toast.success("Updated successfully 🚀");
+
+      setTimeout(() => {
+        navigate("/admin/products");
+      }, 1500);
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Update failed ❌");
     }
-  });
-
-  try {
-    await axios.put(
-      `http://localhost:8080/api/products/${id}`,
-      formData
-    );
-
-    // ✅ FIX: delay navigation
-    toast.success("Updated successfully 🚀");
-
-    setTimeout(() => {
-      navigate("/admin/products");
-    }, 1500);
-
-  } catch (err) {
-    console.error(err);
-    toast.error("Update failed ❌");
-  }
-};
+  };
 
   return (
     <div className="add-product-container">
@@ -104,7 +118,7 @@ function EditProduct() {
               }}
             />
 
-            {/* DELETE */}
+            {/* DELETE (UI only) */}
             <span
               onClick={() => handleDeleteImage(index)}
               style={{

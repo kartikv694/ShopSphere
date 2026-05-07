@@ -10,78 +10,81 @@ function AddProduct() {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
 
-  //  Handle image selection
+  // 🔥 Handle image selection
   const handleImageChange = (index, file) => {
     const newImages = [...images];
     newImages[index] = file;
     setImages(newImages);
   };
 
-  // Submit form
+  // 🔥 Submit form
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const validImages = images.filter((img) => img !== null);
+    const token = localStorage.getItem("token"); // ✅ IMPORTANT
 
-  if (validImages.length === 0) {
-    toast.error("Please upload at least one image ❌");
-    return;
-  }
+    const validImages = images.filter((img) => img !== null);
 
-  if (!name || !description || !price || !category) {
-    toast.error("Please fill all fields ❌");
-    return;
-  }
+    if (validImages.length === 0) {
+      toast.error("Please upload at least one image ❌");
+      return;
+    }
 
-  const formData = new FormData();
-  formData.append("name", name);
-  formData.append("description", description);
-  formData.append("price", price);
-  formData.append("category", category);
+    if (!name || !description || !price || !category) {
+      toast.error("Please fill all fields ❌");
+      return;
+    }
 
-  validImages.forEach((img) => {
-    formData.append("images", img);
-  });
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("category", category);
 
-  const toastId = toast.loading("Uploading product...");
-
-  try {
-    // ❌ REMOVE headers completely
-    await axios.post(
-      "http://localhost:8080/api/products/add",
-      formData
-    );
-
-    toast.update(toastId, {
-      render: "Product Added Successfully 🚀",
-      type: "success",
-      isLoading: false,
-      autoClose: 2000,
+    validImages.forEach((img) => {
+      formData.append("images", img);
     });
 
-    // ✅ optional navigation delay
-    setTimeout(() => {
-      // navigate("/admin/products"); (if you want)
-    }, 1500);
+    const toastId = toast.loading("Uploading product...");
 
-    // reset
-    setImages([null, null, null, null]);
-    setName("");
-    setDescription("");
-    setPrice("");
-    setCategory("");
+    try {
+      await axios.post(
+        "http://localhost:8080/api/products/add",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ FIX
+            // ❗ Don't manually set Content-Type for FormData
+          },
+        }
+      );
 
-  } catch (error) {
-    console.error(error);
+      toast.update(toastId, {
+        render: "Product Added Successfully 🚀",
+        type: "success",
+        isLoading: false,
+        autoClose: 2000,
+      });
 
-    toast.update(toastId, {
-      render: "Error adding product ❌",
-      type: "error",
-      isLoading: false,
-      autoClose: 2000,
-    });
-  }
-};
+      // reset form
+      setImages([null, null, null, null]);
+      setName("");
+      setDescription("");
+      setPrice("");
+      setCategory("");
+
+    } catch (error) {
+      console.error(error);
+
+      toast.update(toastId, {
+        render: "Error adding product ❌",
+        type: "error",
+        isLoading: false,
+        autoClose: 2000,
+      });
+    }
+  };
+
   return (
     <div className="add-product-container">
       <h2>Upload Images</h2>
@@ -99,7 +102,7 @@ function AddProduct() {
 
             <input
               type="file"
-              multiple   // 👈 ADD THIS
+              multiple
               className="file-input"
               onChange={(e) => {
                 const files = Array.from(e.target.files);
