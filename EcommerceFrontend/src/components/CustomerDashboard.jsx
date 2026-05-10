@@ -1,6 +1,15 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { toast } from "react-toastify";
+
+import HeroSection from "./customer/HeroSection";
+import TrendingCategories from "./customer/TrendingCategories";
+import TrendingProducts from "./customer/TrendingProducts";
+import Recommendations from "./customer/Recommendations";
+import RecentlyViewed from "./customer/RecentlyViewed";
+import BackToTop from "./customer/BackToTop";
+import Footer from "./customer/Footer";
 
 function CustomerDashboard() {
 
@@ -11,55 +20,185 @@ function CustomerDashboard() {
   // FETCH PRODUCTS
   useEffect(() => {
 
-    let apiUrl = "";
+    // ONLY FETCH FOR CATEGORY PAGE
+    if (category) {
 
-    // ALL PRODUCTS
-    if (
-      !category ||
-      category.toLowerCase() === "all"
-    ) {
+      axios
+        .get(
+          "http://localhost:8080/api/products/all"
+        )
+        .then((response) => {
 
-      apiUrl = "http://localhost:8080/api/products/all";
+          let allProducts = [];
 
-    }
+          if (Array.isArray(response.data)) {
 
-    // CATEGORY PRODUCTS
-    else {
+            allProducts = response.data;
 
-      apiUrl =
-        `http://localhost:8080/api/products/category/${category}`;
+          } else if (
+            Array.isArray(response.data.data)
+          ) {
 
-    }
+            allProducts = response.data.data;
 
-    axios
-      .get(apiUrl)
-      .then((response) => {
+          }
 
-        if (Array.isArray(response.data)) {
+          // SHOW ALL PRODUCTS
+          if (category.toLowerCase() === "all") {
 
-          setProducts(response.data);
+            setProducts(allProducts);
+            return;
 
-        } else if (Array.isArray(response.data.data)) {
+          }
 
-          setProducts(response.data.data);
+          // SMART FILTER
+          const filteredProducts =
+            allProducts.filter((product) => {
 
-        } else {
+              const productName =
+                product.name?.toLowerCase() || "";
+
+              const searchCategory =
+                category.toLowerCase();
+
+              // CATEGORY KEYWORDS
+              const categoryKeywords = {
+
+                laptops: [
+                  "laptop",
+                  "macbook",
+                  "dell",
+                  "hp",
+                  "lenovo",
+                  "asus"
+                ],
+
+                mobiles: [
+                  "iphone",
+                  "samsung",
+                  "mobile",
+                  "redmi",
+                  "oneplus",
+                ],
+
+                accessories: [
+                  "headphone",
+                  "earbuds",
+                  "watch",
+                  "mouse",
+                  "keyboard",
+                  "speaker"
+                ],
+
+                electronics: [
+                  "laptop",
+                  "iphone",
+                  "mobile",
+                  "electronics",
+                  "headphone",
+                  "macbook",
+                  "dell"
+                ]
+
+              };
+
+              const keywords =
+                categoryKeywords[searchCategory] || [];
+
+              return keywords.some((keyword) =>
+                productName.includes(keyword)
+              );
+
+            });
+
+          setProducts(filteredProducts);
+
+        })
+        .catch((error) => {
+
+          console.log(error);
 
           setProducts([]);
 
-        }
+        });
 
-      })
-      .catch((error) => {
-
-        console.log("API ERROR:", error);
-
-        setProducts([]);
-
-      });
+    }
 
   }, [category]);
 
+  // ADD TO CART
+  const handleAddToCart = (product) => {
+
+    let cart =
+      JSON.parse(localStorage.getItem("cart")) || [];
+
+    const existingProductIndex =
+      cart.findIndex(
+        (item) => item.id === product.id
+      );
+
+    if (existingProductIndex !== -1) {
+
+      cart[existingProductIndex].quantity += 1;
+
+    } else {
+
+      cart.push({
+        ...product,
+        quantity: 1
+      });
+
+    }
+
+    localStorage.setItem(
+      "cart",
+      JSON.stringify(cart)
+    );
+
+    window.dispatchEvent(
+      new Event("cartUpdated")
+    );
+
+    toast.success(
+      "Product added to cart 🛒"
+    );
+
+  };
+
+  // ================= DASHBOARD PAGE =================
+  if (!category) {
+
+    return (
+
+      <div
+        style={{
+          background: "#eaeded",
+          minHeight: "100vh",
+          paddingBottom: "50px"
+        }}
+      >
+
+        <HeroSection />
+
+        <TrendingCategories />
+
+        <TrendingProducts />
+
+        <Recommendations/>
+
+        <RecentlyViewed />
+
+        <BackToTop />
+
+        <Footer />
+
+      </div>
+
+    );
+
+  }
+
+  // ================= CATEGORY PRODUCTS PAGE =================
   return (
 
     <div
@@ -83,9 +222,7 @@ function CustomerDashboard() {
           textTransform: "capitalize"
         }}
       >
-        {category === "all"
-          ? "All Products"
-          : category}
+        {category}
       </h1>
 
       {/* NO PRODUCTS */}
@@ -198,6 +335,24 @@ function CustomerDashboard() {
                 ₹{product.price}
               </h3>
 
+              <button
+                onClick={() =>
+                  handleAddToCart(product)
+                }
+                style={{
+                  marginTop: "18px",
+                  padding: "10px 22px",
+                  background: "#FFD814",
+                  border: "none",
+                  borderRadius: "25px",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                  fontSize: "15px"
+                }}
+              >
+                Add To Cart
+              </button>
+
             </div>
 
           </div>
@@ -209,6 +364,7 @@ function CustomerDashboard() {
     </div>
 
   );
+
 }
 
 export default CustomerDashboard;

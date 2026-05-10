@@ -25,7 +25,36 @@ function ProductDetails() {
 
     fetch(`http://localhost:8080/api/products/${id}`)
       .then((res) => res.json())
-      .then((data) => setProduct(data));
+      .then((data) => {
+
+        setProduct(data);
+
+        // GET OLD RECENTLY VIEWED PRODUCTS
+        let recentlyViewed =
+          JSON.parse(
+            localStorage.getItem("recentlyViewed")
+          ) || [];
+
+        // REMOVE SAME PRODUCT IF EXISTS
+        recentlyViewed =
+          recentlyViewed.filter(
+            (item) => item.id !== data.id
+          );
+
+        // ADD CURRENT PRODUCT AT TOP
+        recentlyViewed.unshift(data);
+
+        // KEEP ONLY LAST 6 PRODUCTS
+        recentlyViewed =
+          recentlyViewed.slice(0, 6);
+
+        // SAVE
+        localStorage.setItem(
+          "recentlyViewed",
+          JSON.stringify(recentlyViewed)
+        );
+
+      });
 
   }, [id]);
 

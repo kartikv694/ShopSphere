@@ -79,3 +79,20 @@
   border: none;
   cursor: pointer;
 }
+
+.cart-btn {
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background-color: #ffd814;
+  color: black;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.cart-btn:hover {
+  background-color: #f7ca00;
+}

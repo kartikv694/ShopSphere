@@ -17,6 +17,7 @@
   padding: 10px;
   border: 1px solid #ccc;
   margin-bottom: 10px;
+  align-items: center;
 }
 
 /* Row */
@@ -27,6 +28,7 @@
   padding: 10px;
   border: 1px solid #ddd;
   margin-bottom: 10px;
+  gap: 10px;
 }
 
 /* Image */
@@ -90,4 +92,20 @@
   padding: 8px 15px;
   border: none;
   border-radius: 5px;
+}
+
+.cart-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #ffd814;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+  width: fit-content;
+  min-width: 120px;
+}
+
+.cart-btn:hover {
+  background-color: #f7ca00;
 }

@@ -191,7 +191,11 @@ function CustomerNavbar({ setProducts }) {
         {/* LEFT */}
         <div className="nav-left">
 
-          <h2 className="logo">
+          <h2
+            className="logo"
+            onClick={() => navigate("/customer/dashboard")}
+            style={{ cursor: "pointer" }}
+          >
             ShopSphere
           </h2>
 

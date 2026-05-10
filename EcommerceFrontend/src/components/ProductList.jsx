@@ -17,6 +17,9 @@ function ProductList() {
   // ✅ GET TOKEN
   const token = localStorage.getItem("token");
 
+  // ✅ GET ROLE
+  const role = localStorage.getItem("role");
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -39,7 +42,7 @@ function ProductList() {
   // DELETE PRODUCT
   const handleDelete = async () => {
     if (!selectedId) return;
-    
+
     try {
       setLoadingDelete(true);
 
@@ -54,7 +57,6 @@ function ProductList() {
 
       // ✅ SUCCESS CASE
       toast.success("Product deleted successfully 🗑️");
-
     } catch (err) {
       console.error(err);
 
@@ -73,6 +75,41 @@ function ProductList() {
       setSelectedId(null);
       fetchProducts();
     }
+  };
+
+  // ✅ ADD TO CART
+  const handleAddToCart = (product) => {
+    let cart =
+      JSON.parse(localStorage.getItem("cart")) || [];
+
+    const existingProductIndex = cart.findIndex(
+      (item) => item.id === product.id
+    );
+
+    // PRODUCT EXISTS
+    if (existingProductIndex !== -1) {
+      cart[existingProductIndex].quantity += 1;
+    }
+
+    // NEW PRODUCT
+    else {
+      cart.push({
+        ...product,
+        quantity: 1,
+      });
+    }
+
+    localStorage.setItem(
+      "cart",
+      JSON.stringify(cart)
+    );
+
+    // UPDATE CART COUNT
+    window.dispatchEvent(
+      new Event("cartUpdated")
+    );
+
+    toast.success("Product added to cart 🛒");
   };
 
   // FILTER
@@ -96,8 +133,15 @@ function ProductList() {
         <span>Name</span>
         <span>Category</span>
         <span>Price</span>
-        <span>Update</span>
-        <span>Action</span>
+
+        {role === "ADMIN" ? (
+          <>
+            <span>Update</span>
+            <span>Action</span>
+          </>
+        ) : (
+          <span>Cart</span>
+        )}
       </div>
 
       {filteredProducts.length > 0 ? (
@@ -121,19 +165,32 @@ function ProductList() {
             <p>{product.category}</p>
             <p>₹{product.price}</p>
 
-            <span
-              className="update"
-              onClick={() => navigate(`/admin/edit/${product.id}`)}
-            >
-              Update
-            </span>
+            {role === "ADMIN" && (
+              <>
+                <span
+                  className="update"
+                  onClick={() => navigate(`/admin/edit/${product.id}`)}
+                >
+                  Update
+                </span>
 
-            <span
-              className="delete"
-              onClick={() => confirmDelete(product.id)}
-            >
-              ✖
-            </span>
+                <span
+                  className="delete"
+                  onClick={() => confirmDelete(product.id)}
+                >
+                  ✖
+                </span>
+              </>
+            )}
+
+            {role !== "ADMIN" && (
+              <button
+                className="cart-btn"
+                onClick={() => handleAddToCart(product)}
+              >
+                Add To Cart
+              </button>
+            )}
           </div>
         ))
       ) : (
