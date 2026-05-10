@@ -58,6 +58,7 @@ public class SecurityConfig {
             	    .requestMatchers("/api/auth/**").permitAll()
             	    .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
             	    .requestMatchers("/api/cart/**").permitAll()   // ✅ ADD THIS
+            	    .requestMatchers("/api/orders/**").authenticated()
 
             	    // 🔒 ADMIN ONLY
             	    .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
