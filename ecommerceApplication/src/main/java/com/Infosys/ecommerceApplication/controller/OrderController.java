@@ -1,10 +1,11 @@
 package com.Infosys.ecommerceApplication.controller;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,9 +31,29 @@ public class OrderController {
         String email = principal.getName();
 
         Order order =
-                orderService.checkout(request, email);
+                orderService.checkout(
+                        request,
+                        email
+                );
 
         return ResponseEntity.ok(order);
+
+    }
+
+    @GetMapping("/my-orders")
+    public ResponseEntity<List<Order>>
+    getCustomerOrders(
+            Principal principal
+    ) {
+
+        String email =
+                principal.getName();
+
+        return ResponseEntity.ok(
+                orderService
+                        .getCustomerOrders(email)
+        );
+
     }
 
 }

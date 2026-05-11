@@ -12,7 +12,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.*;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -23,55 +25,121 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+        CorsConfiguration config =
+                new CorsConfiguration();
+
+        config.setAllowedOrigins(
+                List.of("http://localhost:5173")
+        );
+
+        config.setAllowedMethods(
+                List.of(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "DELETE",
+                        "OPTIONS"
+                )
+        );
+
+        config.setAllowedHeaders(
+                List.of("*")
+        );
+
         config.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration(
+                "/**",
+                config
+        );
 
         return source;
+
     }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder();
+
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(
+            HttpSecurity http
+    ) throws Exception {
 
         http
             .csrf(csrf -> csrf.disable())
+
             .cors(cors -> {})
 
             .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                session.sessionCreationPolicy(
+                        SessionCreationPolicy.STATELESS
+                )
             )
 
             .authorizeHttpRequests(auth -> auth
 
-            	    // ✅ PUBLIC
-            	    .requestMatchers("/api/auth/**").permitAll()
-            	    .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-            	    .requestMatchers("/api/cart/**").permitAll()   // ✅ ADD THIS
-            	    .requestMatchers("/api/orders/**").authenticated()
+                // PUBLIC
+                .requestMatchers(
+                        "/api/auth/**"
+                ).permitAll()
 
-            	    // 🔒 ADMIN ONLY
-            	    .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
-            	    .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
-            	    .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
-            	    .requestMatchers("/api/dashboard/**").hasRole("ADMIN")
+                .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/products/**"
+                ).permitAll()
 
-            	    // 🔒 EVERYTHING ELSE
-            	    .anyRequest().authenticated()
-            	)
-            
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .requestMatchers(
+                        "/api/cart/**"
+                ).permitAll()
+
+                // ORDERS
+                .requestMatchers(
+                        "/api/orders/**"
+                ).hasAnyRole(
+                        "CUSTOMER",
+                        "ADMIN"
+                )
+
+                // ADMIN ONLY
+                .requestMatchers(
+                        HttpMethod.POST,
+                        "/api/products/**"
+                ).hasRole("ADMIN")
+
+                .requestMatchers(
+                        HttpMethod.PUT,
+                        "/api/products/**"
+                ).hasRole("ADMIN")
+
+                .requestMatchers(
+                        HttpMethod.DELETE,
+                        "/api/products/**"
+                ).hasRole("ADMIN")
+
+                .requestMatchers(
+                        "/api/dashboard/**"
+                ).hasRole("ADMIN")
+
+                // EVERYTHING ELSE
+                .anyRequest().authenticated()
+
+            )
+
+            .addFilterBefore(
+                    jwtFilter,
+                    UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
+
     }
+
 }

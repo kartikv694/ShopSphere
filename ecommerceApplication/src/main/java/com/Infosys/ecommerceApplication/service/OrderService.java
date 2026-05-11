@@ -17,6 +17,8 @@ import com.Infosys.ecommerceApplication.repository.OrderRepository;
 import com.Infosys.ecommerceApplication.repository.ProductRepository;
 import com.Infosys.ecommerceApplication.repository.userRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class OrderService {
 
@@ -29,21 +31,22 @@ public class OrderService {
     @Autowired
     private userRepository userRepository;
 
+    @Transactional
     public Order checkout(
             CheckoutRequestDto request,
             String email
     ) {
 
         // GET USER
-    	User customer =
-    	        userRepository
-    	                .findByEmail(email)
-    	                .orElseThrow(
-    	                        () ->
-    	                                new RuntimeException(
-    	                                        "User not found"
-    	                                )
-    	                );
+        User customer =
+                userRepository
+                        .findByEmail(email)
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "User not found"
+                                        )
+                        );
 
         // CREATE ORDER
         Order order = new Order();
@@ -119,6 +122,24 @@ public class OrderService {
         order.setTotalPrice(totalPrice);
 
         return orderRepository.save(order);
+
+    }
+
+    public List<Order> getCustomerOrders(
+            String email
+    ) {
+
+        User customer =
+                userRepository
+                        .findByEmail(email)
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "User not found"
+                                        )
+                        );
+
+        return orderRepository.findByCustomer(customer);
 
     }
 
