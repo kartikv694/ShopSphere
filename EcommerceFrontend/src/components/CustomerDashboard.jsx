@@ -17,10 +17,13 @@ function CustomerDashboard() {
 
   const [products, setProducts] = useState([]);
 
+  // IMAGE SLIDER STATE
+  const [imageIndexes, setImageIndexes] =
+    useState({});
+
   // FETCH PRODUCTS
   useEffect(() => {
 
-    // ONLY FETCH FOR CATEGORY PAGE
     if (category) {
 
       axios
@@ -47,11 +50,12 @@ function CustomerDashboard() {
           if (category.toLowerCase() === "all") {
 
             setProducts(allProducts);
+
             return;
 
           }
 
-          // SMART FILTER
+          // CATEGORY FILTER
           const filteredProducts =
             allProducts.filter((product) => {
 
@@ -61,7 +65,6 @@ function CustomerDashboard() {
               const searchCategory =
                 category.toLowerCase();
 
-              // CATEGORY KEYWORDS
               const categoryKeywords = {
 
                 laptops: [
@@ -103,10 +106,15 @@ function CustomerDashboard() {
               };
 
               const keywords =
-                categoryKeywords[searchCategory] || [];
+                categoryKeywords[
+                  searchCategory
+                ] || [];
 
-              return keywords.some((keyword) =>
-                productName.includes(keyword)
+              return keywords.some(
+                (keyword) =>
+                  productName.includes(
+                    keyword
+                  )
               );
 
             });
@@ -126,26 +134,83 @@ function CustomerDashboard() {
 
   }, [category]);
 
+  // NEXT IMAGE
+  const nextImage = (
+    productId,
+    totalImages,
+    e
+  ) => {
+
+    e.preventDefault();
+
+    setImageIndexes((prev) => ({
+
+      ...prev,
+
+      [productId]:
+        (
+          (prev[productId] || 0) + 1
+        ) % totalImages
+
+    }));
+
+  };
+
+  // PREVIOUS IMAGE
+  const prevImage = (
+    productId,
+    totalImages,
+    e
+  ) => {
+
+    e.preventDefault();
+
+    setImageIndexes((prev) => ({
+
+      ...prev,
+
+      [productId]:
+        (
+          (prev[productId] || 0) - 1 +
+          totalImages
+        ) % totalImages
+
+    }));
+
+  };
+
   // ADD TO CART
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (
+    product
+  ) => {
 
     let cart =
-      JSON.parse(localStorage.getItem("cart")) || [];
+      JSON.parse(
+        localStorage.getItem("cart")
+      ) || [];
 
     const existingProductIndex =
       cart.findIndex(
-        (item) => item.id === product.id
+        (item) =>
+          item.id === product.id
       );
 
-    if (existingProductIndex !== -1) {
+    if (
+      existingProductIndex !== -1
+    ) {
 
-      cart[existingProductIndex].quantity += 1;
+      cart[
+        existingProductIndex
+      ].quantity += 1;
 
     } else {
 
       cart.push({
+
         ...product,
+
         quantity: 1
+
       });
 
     }
@@ -184,7 +249,7 @@ function CustomerDashboard() {
 
         <TrendingProducts />
 
-        <Recommendations/>
+        <Recommendations />
 
         <RecentlyViewed />
 
@@ -203,10 +268,10 @@ function CustomerDashboard() {
 
     <div
       style={{
-        background: "#ffffff",
+        background: "#f5f5f5",
         minHeight: "100vh",
         width: "100%",
-        padding: "0px 25px",
+        padding: "30px",
         boxSizing: "border-box"
       }}
     >
@@ -215,10 +280,9 @@ function CustomerDashboard() {
       <h1
         style={{
           color: "black",
-          fontSize: "32px",
-          fontWeight: "600",
-          marginTop: "10px",
-          marginBottom: "25px",
+          fontSize: "42px",
+          fontWeight: "700",
+          marginBottom: "30px",
           textTransform: "capitalize"
         }}
       >
@@ -239,59 +303,154 @@ function CustomerDashboard() {
 
       ) : (
 
-        products.map((product) => (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(3, 1fr)",
+            gap: "28px",
+            width: "100%"
+          }}
+        >
 
-          <div
-            key={product.id}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: "30px",
-              width: "100%",
-              padding: "20px 0",
-              borderBottom: "1px solid #ddd"
-            }}
-          >
+          {products.map((product) => (
 
-            {/* PRODUCT IMAGE */}
             <div
+              key={product.id}
               style={{
-                width: "220px",
+                background: "white",
+                borderRadius: "18px",
+                overflow: "hidden",
+                boxShadow:
+                  "0 4px 14px rgba(0,0,0,0.08)",
+                transition: "0.3s",
                 display: "flex",
-                justifyContent: "center"
+                flexDirection: "column",
+                padding: "20px"
               }}
             >
 
+              {/* PRODUCT IMAGE */}
               <Link
                 to={`/customer/products/${product.id}`}
+                style={{
+                  textDecoration: "none"
+                }}
               >
 
-                <img
-                  src={
-                    product.imageUrls?.[0] ||
-                    "https://via.placeholder.com/250"
-                  }
-                  alt={product.name}
+                <div
                   style={{
-                    width: "180px",
-                    height: "180px",
-                    objectFit: "contain",
-                    cursor: "pointer"
+                    position: "relative",
+                    width: "100%",
+                    height: "220px",
+                    marginBottom: "15px",
+                    background: "#f7f7f7",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
                   }}
-                />
+                >
+
+                  <img
+                    src={
+                      product.imageUrls?.[
+                        imageIndexes[
+                          product.id
+                        ] || 0
+                      ] ||
+                      "https://via.placeholder.com/250"
+                    }
+                    alt={product.name}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                      cursor: "pointer"
+                    }}
+                  />
+
+                  {product.imageUrls
+                    ?.length > 1 && (
+
+                    <>
+
+                      <button
+                        onClick={(e) =>
+                          prevImage(
+                            product.id,
+                            product.imageUrls
+                              .length,
+                            e
+                          )
+                        }
+                        style={{
+                          position: "absolute",
+                          left: "6px",
+                          padding: "0",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          width: "34px",
+                          height: "34px",
+                          minWidth: "34px",
+                          borderRadius: "50%",
+                          border: "none",
+                          background: "white",
+                          cursor: "pointer",
+                          fontSize: "22px",
+                          fontWeight: "bold",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+                        }}
+                      >
+                        &#10094;
+                      </button>
+
+                      <button
+                        onClick={(e) =>
+                          nextImage(
+                            product.id,
+                            product.imageUrls
+                              .length,
+                            e
+                          )
+                        }
+                        style={{
+                          position: "absolute",
+                          right: "6px",
+                          right: "6px",
+                          padding: "0",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          width: "34px",
+                          height: "34px",
+                          minWidth: "34px",
+                          borderRadius: "50%",
+                          border: "none",
+                          background: "white",
+                          cursor: "pointer",
+                          fontSize: "22px",
+                          fontWeight: "bold",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+                        }}
+                      >
+                        &#10095;
+                      </button>
+
+                    </>
+
+                  )}
+
+                </div>
 
               </Link>
 
-            </div>
-
-            {/* PRODUCT DETAILS */}
-            <div
-              style={{
-                flex: 1,
-                paddingTop: "10px"
-              }}
-            >
-
+              {/* PRODUCT DETAILS */}
               <Link
                 to={`/customer/products/${product.id}`}
                 style={{
@@ -302,11 +461,11 @@ function CustomerDashboard() {
                 <h2
                   style={{
                     color: "black",
-                    fontSize: "18px",
-                    fontWeight: "500",
-                    marginBottom: "8px",
-                    lineHeight: "28px",
-                    cursor: "pointer"
+                    fontSize: "20px",
+                    fontWeight: "600",
+                    lineHeight: "30px",
+                    marginBottom: "10px",
+                    minHeight: "70px"
                   }}
                 >
                   {product.name}
@@ -316,9 +475,9 @@ function CustomerDashboard() {
 
               <p
                 style={{
-                  color: "#565959",
-                  fontSize: "14px",
-                  marginBottom: "10px",
+                  color: "#666",
+                  fontSize: "15px",
+                  marginBottom: "14px",
                   textTransform: "capitalize"
                 }}
               >
@@ -328,8 +487,9 @@ function CustomerDashboard() {
               <h3
                 style={{
                   color: "black",
-                  fontSize: "22px",
-                  fontWeight: "600"
+                  fontSize: "30px",
+                  fontWeight: "700",
+                  marginBottom: "20px"
                 }}
               >
                 ₹{product.price}
@@ -340,14 +500,15 @@ function CustomerDashboard() {
                   handleAddToCart(product)
                 }
                 style={{
-                  marginTop: "18px",
-                  padding: "10px 22px",
+                  marginTop: "auto",
+                  padding: "14px",
                   background: "#FFD814",
                   border: "none",
-                  borderRadius: "25px",
+                  borderRadius: "30px",
                   cursor: "pointer",
                   fontWeight: "600",
-                  fontSize: "15px"
+                  fontSize: "16px",
+                  width: "100%"
                 }}
               >
                 Add To Cart
@@ -355,9 +516,9 @@ function CustomerDashboard() {
 
             </div>
 
-          </div>
+          ))}
 
-        ))
+        </div>
 
       )}
 

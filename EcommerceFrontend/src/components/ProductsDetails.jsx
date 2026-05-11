@@ -17,6 +17,9 @@ function ProductDetails() {
 
   const [openModal, setOpenModal] = useState(false);
 
+  const [selectedImage, setSelectedImage] =
+    useState(0);
+
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -140,15 +143,68 @@ function ProductDetails() {
             ← Back
           </button>
 
-          {/* IMAGE */}
-          <img
-            src={
-              product.imageUrls?.[0] ||
-              "https://via.placeholder.com/300"
-            }
-            alt={product.name}
-            style={styles.image}
-          />
+          {/* IMAGE SECTION */}
+          <div
+            style={{
+              display: "flex",
+              gap: "18px",
+              alignItems: "flex-start"
+            }}
+          >
+
+            {/* THUMBNAILS */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px"
+              }}
+            >
+
+              {product.imageUrls?.map(
+                (image, index) => (
+
+                  <img
+                    key={index}
+                    src={image}
+                    alt=""
+                    onClick={() =>
+                      setSelectedImage(index)
+                    }
+                    style={{
+                      width: "75px",
+                      height: "75px",
+                      objectFit: "contain",
+                      border:
+                        selectedImage === index
+                          ? "2px solid #ff9900"
+                          : "1px solid #ddd",
+                      borderRadius: "10px",
+                      cursor: "pointer",
+                      padding: "5px",
+                      background: "white",
+                      transition: "0.3s"
+                    }}
+                  />
+
+                )
+              )}
+
+            </div>
+
+            {/* MAIN IMAGE */}
+            <img
+              src={
+                product.imageUrls?.[
+                  selectedImage
+                ] ||
+                "https://via.placeholder.com/300"
+              }
+              alt={product.name}
+              style={styles.image}
+            />
+
+          </div>
 
         </div>
 
@@ -305,7 +361,7 @@ const styles = {
 
   container: {
     display: "flex",
-    gap: "50px",
+    gap: "60px",
     padding: "40px",
     paddingTop: "90px",
     background: "#fff",
@@ -325,9 +381,11 @@ const styles = {
   },
 
   image: {
-    width: "400px",
-    height: "400px",
-    objectFit: "contain"
+    width: "500px",
+    height: "500px",
+    objectFit: "contain",
+    background: "white",
+    borderRadius: "14px"
   },
 
   details: {
@@ -338,41 +396,45 @@ const styles = {
   category: {
     color: "#565959",
     marginTop: "10px",
-    textTransform: "capitalize"
+    textTransform: "capitalize",
+    fontSize: "17px"
   },
 
   description: {
     marginTop: "20px",
-    fontSize: "16px",
-    lineHeight: "28px"
+    fontSize: "17px",
+    lineHeight: "30px",
+    color: "#333"
   },
 
   price: {
     marginTop: "25px",
     color: "#B12704",
-    fontSize: "32px"
+    fontSize: "42px",
+    fontWeight: "700"
   },
 
   button: {
     marginTop: "30px",
-    padding: "12px 30px",
+    padding: "14px 40px",
     background: "#FFD814",
     border: "none",
     color: "black",
-    fontSize: "16px",
+    fontSize: "18px",
     cursor: "pointer",
-    borderRadius: "25px",
-    fontWeight: "600"
+    borderRadius: "30px",
+    fontWeight: "600",
+    transition: "0.3s"
   },
 
   qtyBtn: {
-    width: "35px",
-    height: "35px",
+    width: "40px",
+    height: "40px",
     borderRadius: "50%",
     border: "1px solid #ccc",
     background: "#f0f2f2",
     cursor: "pointer",
-    fontSize: "18px",
+    fontSize: "20px",
     fontWeight: "bold"
   }
 

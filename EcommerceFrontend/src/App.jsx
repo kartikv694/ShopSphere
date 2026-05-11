@@ -21,6 +21,7 @@ import "./App.css";
 /* Layouts */
 import AdminLayout from "./components/AdminLayout";
 import CustomerLayout from "./components/CustomerLayout";
+import CustomerOrders from "./components/customer/CustomerOrders";
 
 function App() {
   return (
@@ -68,6 +69,11 @@ function App() {
                 </CustomerLayout>
               </CustomerRoute>
             }
+          />
+
+          <Route
+            path="/customer/my-orders"
+            element={<CustomerOrders />}
           />
 
         {/* ADMIN */}

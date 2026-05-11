@@ -3,10 +3,17 @@ import "./Products.css";
 import { useNavigate } from "react-router-dom";
 import { SearchContext } from "./SearchContext";
 import { toast } from "react-toastify";
+import {
+  FaChevronLeft,
+  FaChevronRight
+} from "react-icons/fa";
 
 function Products() {
 
   const [products, setProducts] = useState([]);
+
+  const [imageIndexes, setImageIndexes] =
+    useState({});
 
   const { search, category } =
     useContext(SearchContext);
@@ -32,6 +39,53 @@ function Products() {
         product.category === category)
   );
 
+  // NEXT IMAGE
+  const nextImage = (
+    productId,
+    totalImages,
+    e
+  ) => {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    setImageIndexes((prev) => ({
+
+      ...prev,
+
+      [productId]:
+        (
+          (prev[productId] || 0) + 1
+        ) % totalImages
+
+    }));
+
+  };
+
+  // PREVIOUS IMAGE
+  const prevImage = (
+    productId,
+    totalImages,
+    e
+  ) => {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    setImageIndexes((prev) => ({
+
+      ...prev,
+
+      [productId]:
+        (
+          (prev[productId] || 0) - 1 +
+          totalImages
+        ) % totalImages
+
+    }));
+
+  };
+
   // ADD TO CART
   const handleAddToCart = (product) => {
 
@@ -43,15 +97,11 @@ function Products() {
         (item) => item.id === product.id
       );
 
-    // PRODUCT EXISTS
     if (existingProductIndex !== -1) {
 
       cart[existingProductIndex].quantity += 1;
 
-    }
-
-    // NEW PRODUCT
-    else {
+    } else {
 
       cart.push({
         ...product,
@@ -65,7 +115,6 @@ function Products() {
       JSON.stringify(cart)
     );
 
-    // UPDATE CART COUNT
     window.dispatchEvent(
       new Event("cartUpdated")
     );
@@ -99,56 +148,168 @@ function Products() {
 
       <div className="grid">
 
-        {filteredProducts.map((product) => (
+        {filteredProducts.map((product) => {
 
-          <div
-            className="card"
-            key={product.id}
-            onClick={() =>
-              navigate(`/products/${product.id}`)
-            }
-          >
+          const currentIndex =
+            imageIndexes[product.id] || 0;
 
-            {product.imageUrls?.length > 0 ? (
+          return (
 
-              <img
-                src={product.imageUrls[0]}
-                alt={product.name}
-              />
+            <div
+              className="card"
+              key={product.id}
+              onClick={() =>
+                navigate(`/customer/products/${product.id}`)
+              }
+            >
 
-            ) : (
+              {/* IMAGE SECTION */}
 
-              <div>No Image</div>
-
-            )}
-
-            <h3>{product.name}</h3>
-
-            <p className="price">
-              ₹{product.price}
-            </p>
-
-            {/* CUSTOMER ONLY */}
-            {role !== "ADMIN" && (
-
-              <button
-                className="cart-btn"
-                onClick={(e) => {
-
-                  e.stopPropagation();
-
-                  handleAddToCart(product);
-
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  height: "260px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "white"
                 }}
               >
-                Add To Cart
-              </button>
 
-            )}
+                {/* LEFT ARROW */}
 
-          </div>
+                {product.imageUrls?.length > 1 && (
 
-        ))}
+                  <button
+                    onClick={(e) =>
+                      prevImage(
+                        product.id,
+                        product.imageUrls.length,
+                        e
+                      )
+                    }
+                    style={{
+                      position: "absolute",
+                      left: "8px",
+                      top: "45%",
+                      transform: "translateY(-45%)",
+                      width: "34px",
+                      height: "34px",
+                      minWidth: "34px",
+                      borderRadius: "50%",
+                      border: "none",
+                      background: "white",
+                      boxShadow:
+                        "0 2px 8px rgba(0,0,0,0.2)",
+                      cursor: "pointer",
+                      zIndex: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    }}
+                  >
+                    <FaChevronLeft />
+                  </button>
+
+                )}
+
+                {/* PRODUCT IMAGE */}
+
+                <img
+                  src={
+                    product.imageUrls?.[
+                      currentIndex
+                    ]
+                  }
+                  alt={product.name}
+                  style={{
+                    width: "100%",
+                    height: "260px",
+                    objectFit: "cover"
+                  }}
+                />
+
+                {/* RIGHT ARROW */}
+
+                {product.imageUrls?.length > 1 && (
+
+                  <button
+                    onClick={(e) =>
+                      nextImage(
+                        product.id,
+                        product.imageUrls.length,
+                        e
+                      )
+                    }
+                    style={{
+                      position: "absolute",
+                      right: "8px",
+                      top: "45%",
+                      transform: "translateY(-45%)",
+                      width: "34px",
+                      height: "34px",
+                      minWidth: "34px",
+                      borderRadius: "50%",
+                      border: "none",
+                      background: "white",
+                      boxShadow:
+                        "0 2px 8px rgba(0,0,0,0.2)",
+                      cursor: "pointer",
+                      zIndex: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    }}
+                  >
+                    <FaChevronRight />
+                  </button>
+
+                )}
+
+              </div>
+
+              {/* PRODUCT INFO */}
+
+              <h3>{product.name}</h3>
+
+              <p
+                style={{
+                  color: "#666",
+                  padding: "0 20px",
+                  marginBottom: "14px",
+                  textTransform: "capitalize"
+                }}
+              >
+                {product.category}
+              </p>
+
+              <p className="price">
+                ₹{product.price}
+              </p>
+
+              {role !== "ADMIN" && (
+
+                <button
+                  className="cart-btn"
+                  onClick={(e) => {
+
+                    e.stopPropagation();
+
+                    handleAddToCart(product);
+
+                  }}
+                >
+                  Add To Cart
+                </button>
+
+              )}
+
+            </div>
+
+          );
+
+        })}
 
       </div>
 
