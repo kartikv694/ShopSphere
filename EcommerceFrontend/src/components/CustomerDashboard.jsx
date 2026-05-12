@@ -253,10 +253,6 @@ function CustomerDashboard() {
 
         <RecentlyViewed />
 
-        <BackToTop />
-
-        <Footer />
-
       </div>
 
     );

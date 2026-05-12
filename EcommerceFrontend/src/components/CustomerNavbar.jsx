@@ -21,66 +21,146 @@ import {
 import "leaflet/dist/leaflet.css";
 
 /* ================= MAP CLICK ================= */
-function LocationPicker({ setCoords, getAddressFromCoords }) {
+
+function LocationPicker({
+  setCoords,
+  getAddressFromCoords
+}) {
 
   useMapEvents({
 
     click(e) {
 
-      const { lat, lng } = e.latlng;
+      const { lat, lng } =
+        e.latlng;
 
       setCoords(e.latlng);
 
-      getAddressFromCoords(lat, lng);
+      getAddressFromCoords(
+        lat,
+        lng
+      );
 
     },
 
   });
 
   return null;
+
 }
 
-function CustomerNavbar({ setProducts }) {
+function CustomerNavbar({
+  setProducts
+}) {
 
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  const [showLocation, setShowLocation] = useState(false);
+  const [showLocation,
+    setShowLocation] =
+      useState(false);
 
-  const [placeName, setPlaceName] = useState("");
+  const [placeName,
+    setPlaceName] =
+      useState("");
 
-  const [address, setAddress] = useState("");
+  const [address,
+    setAddress] =
+      useState("");
 
-  const [coords, setCoords] = useState(null);
+  const [coords,
+    setCoords] =
+      useState(null);
 
-  const [cartCount, setCartCount] = useState(0);
+  const [cartCount,
+    setCartCount] =
+      useState(0);
 
-  const savedLocation =
-    JSON.parse(localStorage.getItem("location"));
+  const [savedLocation,
+    setSavedLocation] =
+      useState(
 
-  /* ================= CART COUNT ================= */
+        JSON.parse(
+          localStorage.getItem(
+            "selectedLocation"
+          )
+        )
+
+      );
+
+  /* ================= UPDATE LOCATION ================= */
+
   useEffect(() => {
 
-    const updateCartCount = () => {
+    const updateLocation =
+      () => {
 
-      const cart =
-        JSON.parse(localStorage.getItem("cart")) || [];
+        const latestLocation =
+          JSON.parse(
 
-      let totalQuantity = 0;
+            localStorage.getItem(
+              "selectedLocation"
+            )
 
-      cart.forEach((item) => {
+          );
 
-        totalQuantity += item.quantity || 1;
+        setSavedLocation(
+          latestLocation
+        );
 
-      });
+      };
 
-      setCartCount(totalQuantity);
+    updateLocation();
+
+    window.addEventListener(
+      "locationUpdated",
+      updateLocation
+    );
+
+    return () => {
+
+      window.removeEventListener(
+        "locationUpdated",
+        updateLocation
+      );
 
     };
 
-    // INITIAL LOAD
+  }, []);
+
+  /* ================= CART COUNT ================= */
+
+  useEffect(() => {
+
+    const updateCartCount =
+      () => {
+
+        const cart =
+          JSON.parse(
+
+            localStorage.getItem(
+              "cart"
+            )
+
+          ) || [];
+
+        let totalQuantity = 0;
+
+        cart.forEach((item) => {
+
+          totalQuantity +=
+            item.quantity || 1;
+
+        });
+
+        setCartCount(
+          totalQuantity
+        );
+
+      };
+
     updateCartCount();
 
-    // EVENT LISTENER
     window.addEventListener(
       "cartUpdated",
       updateCartCount
@@ -98,124 +178,235 @@ function CustomerNavbar({ setProducts }) {
   }, []);
 
   /* ================= CATEGORY FILTER ================= */
-  const handleCategoryClick = async (category) => {
 
-    try {
+  const handleCategoryClick =
+    async (category) => {
 
-      const res = await axios.get(
-        `http://localhost:8080/api/products/category/${category}`
-      );
+      try {
 
-      console.log(res.data);
+        const res =
+          await axios.get(
 
-      setProducts(res.data);
+            `http://localhost:8080/api/products/category/${category}`
 
-    } catch (err) {
+          );
 
-      console.log(err);
+        setProducts(
+          res.data
+        );
 
-    }
+      } catch (err) {
 
-  };
+        console.log(err);
 
-  /* ================= GET ADDRESS ================= */
-  const getAddressFromCoords = async (lat, lon) => {
-
-    try {
-
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
-      );
-
-      const data = await res.json();
-
-      setAddress(
-        data.display_name || "Address not found"
-      );
-
-    } catch (err) {
-
-      console.error(err);
-
-    }
-
-  };
-
-  /* ================= CURRENT LOCATION ================= */
-  const handleUseCurrentLocation = () => {
-
-    navigator.geolocation.getCurrentPosition((pos) => {
-
-      const lat = pos.coords.latitude;
-
-      const lng = pos.coords.longitude;
-
-      setCoords({ lat, lng });
-
-      getAddressFromCoords(lat, lng);
-
-    });
-
-  };
-
-  /* ================= SAVE LOCATION ================= */
-  const handleSave = () => {
-
-    const loc = {
-
-      name: placeName || "Current Location",
-
-      address: address,
-
-      lat: coords?.lat,
-
-      lng: coords?.lng,
+      }
 
     };
 
-    localStorage.setItem(
-      "location",
-      JSON.stringify(loc)
-    );
+  /* ================= GET ADDRESS ================= */
 
-    setShowLocation(false);
+  const getAddressFromCoords =
+    async (lat, lon) => {
 
-    window.location.reload();
+      try {
+
+        const res =
+          await fetch(
+
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+
+          );
+
+        const data =
+          await res.json();
+
+        setAddress(
+
+          data.display_name ||
+          "Address not found"
+
+        );
+
+      } catch (err) {
+
+        console.error(err);
+
+      }
+
+    };
+
+  /* ================= CURRENT LOCATION ================= */
+
+  const handleUseCurrentLocation =
+    () => {
+
+      navigator.geolocation.getCurrentPosition(
+
+        (pos) => {
+
+          const lat =
+            pos.coords.latitude;
+
+          const lng =
+            pos.coords.longitude;
+
+          setCoords({
+            lat,
+            lng
+          });
+
+          getAddressFromCoords(
+            lat,
+            lng
+          );
+
+        }
+
+      );
+
+    };
+
+  /* ================= SAVE LOCATION ================= */
+
+  const handleSave = () => {
+
+  const addressParts =
+    address.split(",");
+
+  const city =
+    addressParts[
+      addressParts.length - 4
+    ]?.trim() || "";
+
+  const state =
+    addressParts[
+      addressParts.length - 3
+    ]?.trim() || "";
+
+  const pincode =
+    address.match(/\d{6}/)?.[0] || "";
+
+  const loc = {
+
+    fullName:
+      placeName ||
+      "Current Location",
+
+    fullAddress:
+      address || "",
+
+    address:
+      address || "",
+
+    city:
+      city || "",
+
+    state:
+      state || "",
+
+    pincode:
+      pincode || "",
+
+    lat:
+      coords?.lat || "",
+
+    lng:
+      coords?.lng || ""
 
   };
 
+  localStorage.setItem(
+
+    "selectedLocation",
+
+    JSON.stringify(loc)
+
+  );
+
+  setSavedLocation(loc);
+
+  setShowLocation(false);
+
+  window.dispatchEvent(
+
+    new Event(
+      "locationUpdated"
+    )
+
+  );
+
+};
+
   return (
+
     <>
+
       <div className="navbar customer-navbar">
 
         {/* LEFT */}
+
         <div className="nav-left">
 
           <h2
             className="logo"
-            onClick={() => navigate("/customer/dashboard")}
-            style={{ cursor: "pointer" }}
+            onClick={() =>
+              navigate(
+                "/customer/dashboard"
+              )
+            }
+            style={{
+              cursor: "pointer"
+            }}
           >
+
             ShopSphere
+
           </h2>
 
           <div
             className="address-box"
-            onClick={() => setShowLocation(true)}
+            onClick={() =>
+              setShowLocation(true)
+            }
           >
 
-            <FaMapMarkerAlt className="location-icon" />
+            <FaMapMarkerAlt
+              className="location-icon"
+            />
 
             <div className="address">
 
               <span className="deliver">
+
                 Deliver to
+
               </span>
 
               <span className="name">
-                {savedLocation?.name ||
-                  "Set Location"}
+
+                {
+
+                  savedLocation?.fullName ||
+
+                  "Set Location"
+
+                }
+
               </span>
+
+              <p className="address-text">
+
+                {
+
+                  savedLocation?.fullAddress ||
+
+                  savedLocation?.address ||
+
+                  ""
+
+                }
+
+              </p>
 
             </div>
 
@@ -224,6 +415,7 @@ function CustomerNavbar({ setProducts }) {
         </div>
 
         {/* CENTER */}
+
         <div className="nav-center">
 
           <div className="search-bar">
@@ -245,21 +437,33 @@ function CustomerNavbar({ setProducts }) {
         </div>
 
         {/* RIGHT */}
+
         <div className="nav-right">
 
           <FaUser className="icon" />
 
           {/* CART */}
+
           <div
             className="bag-container"
-            onClick={() => navigate("/customer/cart")}
-            style={{ cursor: "pointer" }}
+            onClick={() =>
+              navigate(
+                "/customer/cart"
+              )
+            }
+            style={{
+              cursor: "pointer"
+            }}
           >
 
-            <FaShoppingBag className="bag-icon" />
+            <FaShoppingBag
+              className="bag-icon"
+            />
 
             <span className="bag-count">
+
               {cartCount}
+
             </span>
 
           </div>
@@ -269,95 +473,131 @@ function CustomerNavbar({ setProducts }) {
       </div>
 
       {/* ================= LOCATION MODAL ================= */}
-      {showLocation && (
 
-        <div className="location-modal">
+      {
 
-          <div className="location-box">
+        showLocation && (
 
-            {/* LEFT FORM */}
-            <div className="location-form">
+          <div className="location-modal">
 
-              <h3>
-                Set Delivery Location
-              </h3>
+            <div className="location-box">
 
-              <input
-                type="text"
-                placeholder="Place name (Home, Office)"
-                value={placeName}
-                onChange={(e) =>
-                  setPlaceName(e.target.value)
-                }
-              />
+              {/* LEFT FORM */}
 
-              <input
-                type="text"
-                placeholder="Full Address"
-                value={address}
-                onChange={(e) =>
-                  setAddress(e.target.value)
-                }
-              />
+              <div className="location-form">
 
-              <button
-                onClick={handleUseCurrentLocation}
-              >
-                Use Current Location
-              </button>
+                <h3>
 
-              <button onClick={handleSave}>
-                Save
-              </button>
+                  Set Delivery Location
 
-              <button
-                onClick={() =>
-                  setShowLocation(false)
-                }
-              >
-                Cancel
-              </button>
+                </h3>
 
-            </div>
-
-            {/* RIGHT MAP */}
-            <div className="map-container">
-
-              <MapContainer
-                center={[28.61, 77.23]}
-                zoom={13}
-                style={{
-                  height: "100%",
-                  width: "100%"
-                }}
-              >
-
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-
-                {coords && (
-                  <Marker position={coords} />
-                )}
-
-                <LocationPicker
-                  setCoords={setCoords}
-                  getAddressFromCoords={
-                    getAddressFromCoords
+                <input
+                  type="text"
+                  placeholder="Place name (Home, Office)"
+                  value={placeName}
+                  onChange={(e) =>
+                    setPlaceName(
+                      e.target.value
+                    )
                   }
                 />
 
-              </MapContainer>
+                <input
+                  type="text"
+                  placeholder="Full Address"
+                  value={address}
+                  onChange={(e) =>
+                    setAddress(
+                      e.target.value
+                    )
+                  }
+                />
+
+                <button
+                  onClick={
+                    handleUseCurrentLocation
+                  }
+                >
+
+                  Use Current Location
+
+                </button>
+
+                <button
+                  onClick={handleSave}
+                >
+
+                  Save
+
+                </button>
+
+                <button
+                  onClick={() =>
+                    setShowLocation(false)
+                  }
+                >
+
+                  Cancel
+
+                </button>
+
+              </div>
+
+              {/* RIGHT MAP */}
+
+              <div className="map-container">
+
+                <MapContainer
+                  center={[28.61, 77.23]}
+                  zoom={13}
+                  style={{
+                    height: "100%",
+                    width: "100%"
+                  }}
+                >
+
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+
+                  {
+
+                    coords && (
+
+                      <Marker
+                        position={coords}
+                      />
+
+                    )
+
+                  }
+
+                  <LocationPicker
+                    setCoords={
+                      setCoords
+                    }
+                    getAddressFromCoords={
+                      getAddressFromCoords
+                    }
+                  />
+
+                </MapContainer>
+
+              </div>
 
             </div>
 
           </div>
 
-        </div>
+        )
 
-      )}
+      }
+
     </>
+
   );
+
 }
 
 export default CustomerNavbar;

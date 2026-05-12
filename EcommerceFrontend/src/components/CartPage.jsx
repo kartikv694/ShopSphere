@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Modal } from "flowbite-react";
+import { useNavigate } from "react-router-dom";
 
 function CartPage() {
 
@@ -10,6 +11,8 @@ function CartPage() {
 
   const [selectedProductId, setSelectedProductId] =
     useState(null);
+
+  const navigate = useNavigate();  
 
   // LOAD CART
   useEffect(() => {
@@ -322,11 +325,12 @@ function CartPage() {
                 </span>
               </h3>
 
-              <button
-                style={styles.checkoutBtn}
-              >
-                Proceed to Checkout
-              </button>
+                <button
+                  style={styles.checkoutBtn}
+                  onClick={() => navigate("/checkout")}
+                >
+                  Proceed to Checkout
+                </button>
 
             </div>
 
