@@ -1,16 +1,16 @@
 import { Link, useParams } from "react-router-dom";
 import "./Customer.css";
 
-const pageContent = {
+function CustomerInfoPage() {
+  const pageContent = {
   "about-us": {
     title: "About Us",
     subtitle: "ShopSphere brings products, payments, orders, and support into one smooth shopping experience.",
     points: [
-<<<<<<< HEAD
       "Curated electronics, fashion, accessories, toys, and daily essentials.",
-=======
+
        "Curated electronics, foods, beauty products, toys, and daily essentials.",
->>>>>>> bd2e608 (Project Completed Deployment Pending)
+
       "Secure checkout with multiple payment options.",
       "Order tracking from placement to delivery."
     ]
@@ -159,10 +159,6 @@ const pageContent = {
     ctaLabel: "Get Support"
   }
 };
-
-function CustomerInfoPage() 
-  const { slug } = useParams();
-  const page = pageContent[slug] || pageContent["about-us"];
 
   return (
     <div className="info-page">
