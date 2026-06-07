@@ -1,5 +1,6 @@
 package com.Infosys.ecommerceApplication.config;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +24,32 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
+    @Autowired
+    private EnvConfig envConfig;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration config =
                 new CorsConfiguration();
 
+        String configuredOrigins =
+                envConfig.get("FRONTEND_ORIGINS");
+
+        if (configuredOrigins.isBlank()) {
+            configuredOrigins = envConfig.get("FRONTEND_URL");
+        }
+
+        List<String> allowedOrigins =
+                configuredOrigins.isBlank()
+                        ? List.of("http://localhost:5173")
+                        : Arrays.stream(configuredOrigins.split(","))
+                                .map(String::trim)
+                                .filter(origin -> !origin.isBlank())
+                                .toList();
+
         config.setAllowedOrigins(
-                List.of("http://localhost:5173")
+                allowedOrigins
         );
 
         config.setAllowedMethods(
@@ -102,7 +121,32 @@ public class SecurityConfig {
 
                 // ORDERS
                 .requestMatchers(
-                        "/api/orders/**"
+                        HttpMethod.POST,
+                        "/api/orders/checkout"
+                ).hasRole("CUSTOMER")
+
+                .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/orders/my-orders"
+                ).hasRole("CUSTOMER")
+
+                .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/orders",
+                        "/api/orders/all"
+                ).hasRole("ADMIN")
+
+                .requestMatchers(
+                        HttpMethod.PUT,
+                        "/api/orders/*/status"
+                ).hasRole("ADMIN")
+
+                .requestMatchers(
+                        "/api/payments/**"
+                ).hasRole("CUSTOMER")
+
+                .requestMatchers(
+                        "/api/user/**"
                 ).hasAnyRole(
                         "CUSTOMER",
                         "ADMIN"
