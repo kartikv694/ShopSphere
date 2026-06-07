@@ -6,7 +6,11 @@ const pageContent = {
     title: "About Us",
     subtitle: "ShopSphere brings products, payments, orders, and support into one smooth shopping experience.",
     points: [
+<<<<<<< HEAD
       "Curated electronics, fashion, accessories, toys, and daily essentials.",
+=======
+       "Curated electronics, foods, beauty products, toys, and daily essentials.",
+>>>>>>> bd2e608 (Project Completed Deployment Pending)
       "Secure checkout with multiple payment options.",
       "Order tracking from placement to delivery."
     ]

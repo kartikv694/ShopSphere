@@ -8,8 +8,7 @@ import TrendingCategories from "./customer/TrendingCategories";
 import TrendingProducts from "./customer/TrendingProducts";
 import Recommendations from "./customer/Recommendations";
 import RecentlyViewed from "./customer/RecentlyViewed";
-import BackToTop from "./customer/BackToTop";
-import Footer from "./customer/Footer";
+import { API_BASE_URL } from "../utils/auth";
 
 function CustomerDashboard() {
 
@@ -28,7 +27,7 @@ function CustomerDashboard() {
 
       axios
         .get(
-          "http://localhost:8080/api/products/all"
+          `${API_BASE_URL}/api/products/all`
         )
         .then((response) => {
 
@@ -62,6 +61,9 @@ function CustomerDashboard() {
               const productName =
                 product.name?.toLowerCase() || "";
 
+              const productCategory =
+                product.category?.toLowerCase() || "";  
+
               const searchCategory =
                 category.toLowerCase();
 
@@ -93,7 +95,7 @@ function CustomerDashboard() {
                   "speaker"
                 ],
 
-                electronics: [
+                  electronics: [
                   "laptop",
                   "iphone",
                   "mobile",
@@ -101,6 +103,31 @@ function CustomerDashboard() {
                   "headphone",
                   "macbook",
                   "dell"
+                ],
+
+                foods: [
+                  "food",
+                  "foods",
+                  "grocery",
+                  "snack",
+                  "drink",
+                  "beverage"
+                ],
+
+                beauty: [
+                  "beauty",
+                  "cosmetic",
+                  "skincare",
+                  "makeup",
+                  "cream",
+                  "lotion"
+                ],
+
+                toys: [
+                  "toy",
+                  "toys",
+                  "game",
+                  "kids"
                 ]
 
               };
@@ -110,11 +137,17 @@ function CustomerDashboard() {
                   searchCategory
                 ] || [];
 
-              return keywords.some(
+                return (
+                productCategory === searchCategory ||
+                keywords.some(
                 (keyword) =>
                   productName.includes(
                     keyword
+                  ) ||
+                  productCategory.includes(
+                    keyword
                   )
+                )
               );
 
             });
@@ -415,7 +448,6 @@ function CustomerDashboard() {
                         }
                         style={{
                           position: "absolute",
-                          right: "6px",
                           right: "6px",
                           padding: "0",
                           top: "50%",

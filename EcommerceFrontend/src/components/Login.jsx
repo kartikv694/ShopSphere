@@ -1,133 +1,107 @@
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
-import "./Auth.css";
+import "./auth.css";
 import "react-toastify/dist/ReactToastify.css";
+import { API_BASE_URL, setSession } from "../utils/auth";
 
-function Login(){
-
- const [loginData,setLoginData] = useState({
-  email:"",
-  password:""
- });
-
- const navigate = useNavigate();
-
- const handleChange = (e) =>{
-
-  setLoginData({
-   ...loginData,
-   [e.target.name]: e.target.value
+function Login() {
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: ""
   });
 
- };
+  const navigate = useNavigate();
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleChange = (event) => {
+    setLoginData({
+      ...loginData,
+      [event.target.name]: event.target.value
+    });
+  };
 
-  try {
-    const response = await fetch(
-      "http://localhost:8080/api/auth/login",
-      {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify(loginData)
-      }
-    );
-
-    if (response.ok) {
-
-     const data = await response.json();
-
-      // store token + role
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.role);
-      localStorage.setItem("user", JSON.stringify(data));
-
-      toast.success("Login Successful 🎉");
-
-      setLoginData({
-        email: "",
-        password: ""
       });
 
-      console.log("ROLE FROM BACKEND:", data.role);
+      if (response.ok) {
+        const data = await response.json();
 
-      // role-based redirect (temporary)
-      setTimeout(() => {
-        if (data.role === "ADMIN") {
-          navigate("/admin/dashboard");
-        } else {
-          navigate("/customer/dashboard"); 
-        }
-      }, 1000);
+        setSession(data);
+        toast.success("Login successful");
 
-    } else {
-      toast.error("Invalid email or password ❌");
+        setLoginData({
+          email: "",
+          password: ""
+        });
+
+        setTimeout(() => {
+          if (data.role === "ADMIN") {
+            navigate("/admin/dashboard");
+          } else {
+            navigate("/customer/dashboard");
+          }
+        }, 700);
+      } else {
+        toast.error("Invalid email or password");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Server error");
     }
+  };
 
-  } catch (error) {
-    console.log(error);
-    toast.error("Server Error ⚠");
-  }
-};
+  return (
+    <>
+      <div className="auth-container">
+        <div className="auth-box">
+          <h2>Login</h2>
 
- return(
+          <form onSubmit={handleSubmit}>
+            <input
+              name="email"
+              placeholder="Enter Email"
+              value={loginData.email}
+              onChange={handleChange}
+              required
+            />
 
-  <>
-  
-  <div className="auth-container">
+            <input
+              name="password"
+              type="password"
+              placeholder="Enter Password"
+              value={loginData.password}
+              onChange={handleChange}
+              required
+            />
 
-   <div className="auth-box">
+            <button>Login</button>
+          </form>
 
-    <h2>Login</h2>
+          <p>
+            Don't have an account?
+            <Link to="/register"> Register</Link>
+          </p>
+        </div>
+      </div>
 
-    <form onSubmit={handleSubmit}>
-
-     <input
-      name="email"
-      placeholder="Enter Email"
-      value={loginData.email}
-      onChange={handleChange}
-      required
-     />
-
-     <input
-      name="password"
-      type="password"
-      placeholder="Enter Password"
-      value={loginData.password}
-      onChange={handleChange}
-      required
-     />
-
-     <button>Login</button>
-
-    </form>
-
-    <p>
-     Don't have an account?
-     <Link to="/register"> Register</Link>
-    </p>
-
-   </div>
-
-  </div>
-
-  <ToastContainer
-   position="top-right"
-   autoClose={4000}
-   newestOnTop
-   closeOnClick
-   pauseOnHover
-  />
-
-  </>
-
- );
-
+      <ToastContainer
+        position="top-right"
+        autoClose={4000}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+      />
+    </>
+  );
 }
 
 export default Login;

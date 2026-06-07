@@ -1,20 +1,18 @@
 import { Navigate } from "react-router-dom";
+import { clearSession, getRole, hasValidSession } from "../utils/auth";
 
 function PrivateRoute({ children }) {
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+  const role = getRole();
 
-  // not logged in
-  if (!token) {
-    return <Navigate to="/login" />;
+  if (!hasValidSession()) {
+    clearSession();
+    return <Navigate to="/" replace />;
   }
 
-  // not admin
   if (role !== "ADMIN") {
-    return <Navigate to="/customer" />;
+    return <Navigate to="/customer/dashboard" replace />;
   }
 
-  // admin allowed
   return children;
 }
 

@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 
 import { Modal } from "flowbite-react";
+import { API_BASE_URL } from "../utils/auth";
 
 function ProductDetails() {
 
@@ -26,7 +27,7 @@ function ProductDetails() {
 
   useEffect(() => {
 
-    fetch(`http://localhost:8080/api/products/${id}`)
+    fetch(`${API_BASE_URL}/api/products/${id}`)
       .then((res) => res.json())
       .then((data) => {
 

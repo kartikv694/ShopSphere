@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import "./customer.css";
+import "./Customer.css";
 
 function TrendingCategories() {
 
@@ -7,20 +7,24 @@ function TrendingCategories() {
 
   const categories = [
 
-    {
-      name: "Electronics"
+      {
+      name: "Electronics",
+      slug: "electronics"
     },
 
     {
-      name: "Food"
+      name: "Foods",
+      slug: "foods"
     },
 
     {
-      name: "Fashion and Beauty"
+      name: "Beauty",
+      slug: "beauty"
     },
 
     {
-      name: "Toys"
+      name: "Toys",
+      slug: "toys"
     }
 
   ];

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import "./customer.css";
+import "./Customer.css";
 
 function HeroSection() {
 

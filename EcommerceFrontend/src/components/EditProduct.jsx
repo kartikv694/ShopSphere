@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../utils/auth";
 
 function EditProduct() {
   const { id } = useParams();
@@ -17,15 +18,11 @@ function EditProduct() {
     category: "",
   });
 
-  useEffect(() => {
-    fetchProduct();
-  }, []);
-
   // ✅ FETCH PRODUCT (no token needed if GET is public)
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/products/${id}`
+        `${API_BASE_URL}/api/products/${id}`
       );
       setProduct(res.data);
       setOldImages(res.data.imageUrls || []);
@@ -33,7 +30,13 @@ function EditProduct() {
       console.error(err);
       toast.error("Failed to load product ❌");
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    const loadId = setTimeout(fetchProduct, 0);
+
+    return () => clearTimeout(loadId);
+  }, [fetchProduct]);
 
   // ✅ Handle image change
   const handleImageChange = (index, file) => {
@@ -71,7 +74,7 @@ function EditProduct() {
 
     try {
       await axios.put(
-        `http://localhost:8080/api/products/${id}`,
+        `${API_BASE_URL}/api/products/${id}`,
         formData,
         {
           headers: {
@@ -199,11 +202,11 @@ function EditProduct() {
             setProduct({ ...product, category: e.target.value })
           }
         >
-          <option>Electronics</option>
-          <option>Foods</option>
-          <option>Fashion & Beauty</option>
-          <option>Toys</option>
-          <option>Kids</option>
+          <option value="electronics">Electronics</option>
+          <option value="foods">Foods</option>
+          <option value="beauty">Beauty</option>
+          <option value="toys">Toys</option>
+          <option value="kids">Kids</option>
         </select>
 
         <button type="submit">Update</button>

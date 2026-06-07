@@ -120,7 +120,11 @@ function AdminOrders() {
     } catch (error) {
       console.error("Order status update error:", error);
       if (error?.response?.status === 403) {
+<<<<<<< HEAD
         toast.error("Access denied: You don\'t have permission to update this order.");
+=======
+        toast.error("Access denied: You don't have permission to update this order.");
+>>>>>>> bd2e608 (Project Completed Deployment Pending)
       } else if (error?.response?.status === 404) {
         toast.error("Order not found.");
       } else {

@@ -1,27 +1,20 @@
 import { Navigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { clearSession, getRole, hasValidSession } from "../utils/auth";
 
 function CustomerRoute({ children }) {
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+  const role = getRole();
 
-  // ❌ not logged in
-  if (!token) {
-    toast.error("User not logged in");
-
-    setTimeout(() => {
-      window.location.href = "/login";
-    }, 1500);
-
-    return null;
+  if (!hasValidSession()) {
+    clearSession();
+    toast.error("Session expired. Please login again.");
+    return <Navigate to="/" replace />;
   }
 
-  // ❌ not customer
   if (role !== "CUSTOMER") {
-    return <Navigate to="/admin" />;
+    return <Navigate to="/admin/dashboard" replace />;
   }
 
-  // ✅ customer allowed
   return children;
 }
 

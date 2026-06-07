@@ -1,22 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import "./customer.css";
+import "./Customer.css";
 
 function RecentlyViewed() {
 
-  const [products, setProducts] = useState([]);
-
-  useEffect(() => {
-
-    const viewedProducts =
-      JSON.parse(
-        localStorage.getItem("recentlyViewed")
-      ) || [];
-
-    setProducts(viewedProducts);
-
-  }, []);
+  const [products] = useState(
+    () => JSON.parse(localStorage.getItem("recentlyViewed")) || []
+  );
 
   // ADD TO CART
   const handleAddToCart = (product) => {

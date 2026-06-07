@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./AddProduct.css";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../utils/auth";
 
 function AddProduct() {
   const [images, setImages] = useState([null, null, null, null]);
@@ -11,12 +12,6 @@ function AddProduct() {
   const [category, setCategory] = useState("");
 
   // 🔥 Handle image selection
-  const handleImageChange = (index, file) => {
-    const newImages = [...images];
-    newImages[index] = file;
-    setImages(newImages);
-  };
-
   // 🔥 Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,7 +44,7 @@ function AddProduct() {
 
     try {
       await axios.post(
-        "http://localhost:8080/api/products/add",
+        `${API_BASE_URL}/api/products/add`,
         formData,
         {
           headers: {

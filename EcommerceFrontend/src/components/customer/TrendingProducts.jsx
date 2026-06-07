@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
-import "./customer.css";
+import "./Customer.css";
+import { API_BASE_URL } from "../../utils/auth";
 
 function TrendingProducts() {
 
@@ -12,7 +13,7 @@ function TrendingProducts() {
   useEffect(() => {
 
     axios
-      .get("http://localhost:8080/api/products/all")
+      .get(`${API_BASE_URL}/api/products/all`)
       .then((response) => {
 
         if (Array.isArray(response.data)) {

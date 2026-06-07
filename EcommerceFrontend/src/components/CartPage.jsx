@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Modal } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 
 function CartPage() {
 
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(
+    () => JSON.parse(localStorage.getItem("cart")) || []
+  );
 
   const [openDeleteModal, setOpenDeleteModal] =
     useState(false);
@@ -13,16 +15,6 @@ function CartPage() {
     useState(null);
 
   const navigate = useNavigate();  
-
-  // LOAD CART
-  useEffect(() => {
-
-    const cart =
-      JSON.parse(localStorage.getItem("cart")) || [];
-
-    setCartItems(cart);
-
-  }, []);
 
   // UPDATE CART
   const updateCart = (updatedCart) => {

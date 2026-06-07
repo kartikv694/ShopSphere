@@ -1,13 +1,15 @@
-import { useState, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import "./Navbar.css";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { clearSession, getStoredUser } from "../utils/auth";
+import { SearchContext } from "./SearchContextValue";
 
 import {
   FaSearch,
   FaUser,
   FaShoppingBag,
   FaMapMarkerAlt,
+  FaSignOutAlt,
 } from "react-icons/fa";
 
 /* MAP */
@@ -49,12 +51,12 @@ function LocationPicker({
 
 }
 
-function CustomerNavbar({
-  setProducts
-}) {
+function CustomerNavbar() {
 
   const navigate =
     useNavigate();
+  const { setCategory, setSearch } = useContext(SearchContext);
+  const [searchText, setSearchText] = useState("");
 
   const [showLocation,
     setShowLocation] =
@@ -87,6 +89,35 @@ function CustomerNavbar({
         )
 
       );
+
+  const [showUserMenu,
+    setShowUserMenu] =
+      useState(false);
+
+  const [user,
+    setUser] =
+      useState(getStoredUser());
+
+  useEffect(() => {
+
+    const updateUser =
+      () => setUser(getStoredUser());
+
+    window.addEventListener(
+      "userUpdated",
+      updateUser
+    );
+
+    return () => {
+
+      window.removeEventListener(
+        "userUpdated",
+        updateUser
+      );
+
+    };
+
+  }, []);
 
   /* ================= UPDATE LOCATION ================= */
 
@@ -176,32 +207,6 @@ function CustomerNavbar({
     };
 
   }, []);
-
-  /* ================= CATEGORY FILTER ================= */
-
-  const handleCategoryClick =
-    async (category) => {
-
-      try {
-
-        const res =
-          await axios.get(
-
-            `http://localhost:8080/api/products/category/${category}`
-
-          );
-
-        setProducts(
-          res.data
-        );
-
-      } catch (err) {
-
-        console.log(err);
-
-      }
-
-    };
 
   /* ================= GET ADDRESS ================= */
 
@@ -337,6 +342,30 @@ function CustomerNavbar({
 
 };
 
+  const handleLogout = () => {
+
+    clearSession();
+    setShowUserMenu(false);
+    navigate("/");
+
+  };
+
+  const handleSearch = () => {
+
+    setCategory("");
+    setSearch(searchText.trim());
+    navigate("/customer/products");
+
+  };
+
+  const handleSearchKeyDown = (event) => {
+
+    if (event.key === "Enter") {
+      handleSearch();
+    }
+
+  };
+
   return (
 
     <>
@@ -424,9 +453,19 @@ function CustomerNavbar({
               type="text"
               placeholder="Search products..."
               className="search-input"
+              value={searchText}
+              onChange={(event) =>
+                setSearchText(event.target.value)
+              }
+              onKeyDown={handleSearchKeyDown}
             />
 
-            <button className="search-btn">
+            <button
+              className="search-btn"
+              onClick={handleSearch}
+              type="button"
+              aria-label="Search products"
+            >
 
               <FaSearch />
 
@@ -440,7 +479,72 @@ function CustomerNavbar({
 
         <div className="nav-right">
 
-          <FaUser className="icon" />
+          <div className="user-menu-wrapper">
+
+            <button
+              type="button"
+              className="user-menu-btn"
+              onClick={() =>
+                setShowUserMenu(
+                  (current) => !current
+                )
+              }
+            >
+              <FaUser className="icon" />
+            </button>
+
+            {
+              showUserMenu && (
+
+                <div className="user-menu">
+
+                  <p className="user-menu-name">
+                    {
+                      user?.name ||
+                      user?.email?.split("@")[0] ||
+                      "Customer"
+                    }
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+
+                      setShowUserMenu(false);
+                      navigate("/customer/profile");
+
+                    }}
+                  >
+                    My Profile
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+
+                      setShowUserMenu(false);
+                      navigate("/customer/my-orders");
+
+                    }}
+                  >
+                    My Orders
+                  </button>
+
+                  <button
+                    type="button"
+                    className="user-menu-logout"
+                    onClick={handleLogout}
+                  >
+                    <FaSignOutAlt />
+                    Logout
+                  </button>
+
+                </div>
+
+              )
+            }
+
+          </div>
 
           {/* CART */}
 

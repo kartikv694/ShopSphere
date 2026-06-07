@@ -1,12 +1,13 @@
 import { useEffect, useState, useContext } from "react";
 import "./Products.css";
 import { useNavigate } from "react-router-dom";
-import { SearchContext } from "./SearchContext";
+import { SearchContext } from "./SearchContextValue";
 import { toast } from "react-toastify";
 import {
   FaChevronLeft,
   FaChevronRight
 } from "react-icons/fa";
+import { API_BASE_URL } from "../utils/auth";
 
 function Products() {
 
@@ -24,20 +25,36 @@ function Products() {
 
   useEffect(() => {
 
-    fetch("http://localhost:8080/api/products")
+    fetch(`${API_BASE_URL}/api/products/all`)
       .then((res) => res.json())
-      .then((data) => setProducts(data));
+      .then((data) =>
+        setProducts(
+          Array.isArray(data)
+            ? data
+            : data?.data || []
+        )
+      );
 
   }, []);
 
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name
-        .toLowerCase()
-        .includes(search.toLowerCase()) &&
-      (category === "" ||
-        product.category === category)
-  );
+  const filteredProducts = products.filter((product) => {
+    const searchTerm = search.toLowerCase();
+    const productName = product.name?.toLowerCase() || "";
+    const productCategory = product.category?.toLowerCase() || "";
+    const productDescription = product.description?.toLowerCase() || "";
+
+    const matchesSearch =
+      !searchTerm ||
+      productName.includes(searchTerm) ||
+      productCategory.includes(searchTerm) ||
+      productDescription.includes(searchTerm);
+
+    const matchesCategory =
+      !category ||
+      productCategory === category.toLowerCase();
+
+    return matchesSearch && matchesCategory;
+  });
 
   // NEXT IMAGE
   const nextImage = (
@@ -130,7 +147,7 @@ function Products() {
     <div className="container">
 
       <h2 className="title">
-        Products
+        {search ? `Search results for "${search}"` : "Products"}
       </h2>
 
       {role === "ADMIN" && (
@@ -146,7 +163,13 @@ function Products() {
 
       )}
 
-      <div className="grid">
+      {filteredProducts.length === 0 ? (
+        <div className="no-products-found">
+          <span>No products found</span>
+          <p>Try another search term or browse all categories.</p>
+        </div>
+      ) : (
+        <div className="grid">
 
         {filteredProducts.map((product) => {
 
@@ -311,7 +334,8 @@ function Products() {
 
         })}
 
-      </div>
+        </div>
+      )}
 
     </div>
 

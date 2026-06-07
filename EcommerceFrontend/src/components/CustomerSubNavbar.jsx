@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./Navbar.css";
 import { FaBars } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { clearSession, getStoredUser } from "../utils/auth";
 
 function CustomerSubNavbar() {
 
@@ -10,14 +11,14 @@ function CustomerSubNavbar() {
   const navigate = useNavigate();
 
   // USER
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = getStoredUser();
 
   // LOGOUT
   const handleLogout = () => {
 
-    localStorage.removeItem("user");
+    clearSession();
 
-    window.location.href = "/login";
+    navigate("/login");
 
   };
 
@@ -53,17 +54,17 @@ function CustomerSubNavbar() {
       {openMenu && (
 
         <div
-          className="sidebar-overlay"
+          className="customer-sidebar-overlay"
           onClick={() => setOpenMenu(false)}
         >
 
           <div
-            className="sidebar"
+            className="customer-sidebar"
             onClick={(e) => e.stopPropagation()}
           >
 
             {/* HEADER */}
-            <div className="sidebar-header">
+            <div className="customer-sidebar-header">
 
               <span>
                 Hello, {
@@ -74,7 +75,7 @@ function CustomerSubNavbar() {
               </span>
 
               <span
-                className="close-btn"
+                className="customer-close-btn"
                 onClick={() => setOpenMenu(false)}
               >
                 ✕
@@ -83,18 +84,32 @@ function CustomerSubNavbar() {
             </div>
 
             {/* TRENDING */}
-            <div className="sidebar-section">
+            <div className="customer-sidebar-section">
 
               <h4>Trending</h4>
 
-              <p>Bestsellers</p>
+              <p
+                onClick={() => {
+                  navigate("/customer/bestsellers");
+                  setOpenMenu(false);
+                }}
+              >
+                Bestsellers
+              </p>
 
-              <p>New Releases</p>
+              <p
+                onClick={() => {
+                  navigate("/customer/new-releases");
+                  setOpenMenu(false);
+                }}
+              >
+                New Releases
+              </p>
 
             </div>
 
             {/* SHOP BY CATEGORY */}
-            <div className="sidebar-section">
+            <div className="customer-sidebar-section">
 
               <h4>Shop by Category</h4>
 
@@ -106,12 +121,12 @@ function CustomerSubNavbar() {
                 Electronics
               </p>
 
-              <p onClick={() => handleCategoryClick("food")}>
-                Food
+              <p onClick={() => handleCategoryClick("foods")}>
+                Foods
               </p>
 
-              <p onClick={() => handleCategoryClick("fashion")}>
-                Fashion and Beauty
+              <p onClick={() => handleCategoryClick("beauty")}>
+                Beauty
               </p>
 
               <p onClick={() => handleCategoryClick("toys")}>
@@ -121,13 +136,36 @@ function CustomerSubNavbar() {
             </div>
 
             {/* HELP */}
-            <div className="sidebar-section">
+            <div className="customer-sidebar-section">
 
               <h4>Help & Settings</h4>
 
-              <p>Your Account</p>
+              <p
+                onClick={() => {
+                  navigate("/customer/profile");
+                  setOpenMenu(false);
+                }}
+              >
+                Your Account
+              </p>
 
-              <p>Customer Service</p>
+              <p
+                onClick={() => {
+                  navigate("/customer/my-orders");
+                  setOpenMenu(false);
+                }}
+              >
+                Your Orders
+              </p>
+
+              <p
+                onClick={() => {
+                  navigate("/customer/service");
+                  setOpenMenu(false);
+                }}
+              >
+                Customer Service
+              </p>
 
               <p
                 onClick={handleLogout}

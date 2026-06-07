@@ -1,20 +1,18 @@
-/* Full layout */
 .admin-layout {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  background: #f0f2f5;
 }
 
-/* Body (sidebar + content) */
 .admin-body {
   display: flex;
   flex: 1;
+  overflow: hidden;
 }
 
-/* Content area */
 .admin-content {
   flex: 1;
-  padding: 30px;
-  background-color: #f4f6f9;
   overflow-y: auto;
+  background: #f0f2f5;
 }

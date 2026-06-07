@@ -3,6 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { Link } from "react-router-dom";   
 import "react-toastify/dist/ReactToastify.css";
 import "./auth.css";
+import { API_BASE_URL } from "../utils/auth";
 
 function Register(){
 
@@ -29,7 +30,7 @@ function Register(){
   try{
 
    const response = await fetch(
-    "http://localhost:8080/api/auth/register",
+    `${API_BASE_URL}/api/auth/register`,
     {
      method:"POST",
      headers:{
