@@ -160,7 +160,7 @@ const pageContent = {
   }
 };
 
-function CustomerInfoPage() {
+function CustomerInfoPage() 
   const { slug } = useParams();
   const page = pageContent[slug] || pageContent["about-us"];
 
