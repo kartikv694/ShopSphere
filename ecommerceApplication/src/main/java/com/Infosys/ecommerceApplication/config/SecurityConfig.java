@@ -34,10 +34,10 @@ public class SecurityConfig {
                 new CorsConfiguration();
 
         String configuredOrigins =
-                envConfig.get("FRONTEND_ORIGINS");
+        		 System.getProperty("FRONTEND_ORIGINS", "");
 
         if (configuredOrigins.isBlank()) {
-            configuredOrigins = envConfig.get("FRONTEND_URL");
+            configuredOrigins =  System.getProperty("FRONTEND_URL", "");
         }
 
         List<String> allowedOrigins =

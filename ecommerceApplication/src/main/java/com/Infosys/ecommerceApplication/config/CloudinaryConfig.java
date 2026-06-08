@@ -36,7 +36,7 @@ public class CloudinaryConfig {
     }
 
     private String requireEnv(String key) {
-        String value = envConfig.get(key);
+    	String value = System.getProperty(key);
 
         if (value == null || value.isBlank()) {
             throw new RuntimeException(

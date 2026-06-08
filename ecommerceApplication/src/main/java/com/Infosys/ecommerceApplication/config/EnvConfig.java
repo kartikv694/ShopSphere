@@ -1,57 +1,34 @@
 package com.Infosys.ecommerceApplication.config;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.springframework.context.annotation.Configuration;
 
-import org.springframework.stereotype.Component;
+import io.github.cdimascio.dotenv.Dotenv;
+import jakarta.annotation.PostConstruct;
 
-@Component
+@Configuration
 public class EnvConfig {
 
-    private final Map<String, String> fileValues = new HashMap<>();
+    @PostConstruct
+    public void loadEnv() {
 
-    public EnvConfig() {
-        loadEnvFile(Path.of(".env"));
+        Dotenv dotenv = Dotenv.configure()
+                .ignoreIfMissing()
+                .load();
+
+        dotenv.entries().forEach(entry ->
+                System.setProperty(
+                        entry.getKey(),
+                        entry.getValue()
+                )
+        );
+
+        System.out.println(
+                "SPRING_DATASOURCE_URL = "
+                        + System.getProperty("SPRING_DATASOURCE_URL")
+        );
     }
 
     public String get(String key) {
-        String envValue = System.getenv(key);
-
-        if (envValue != null && !envValue.isBlank()) {
-            return envValue;
-        }
-
-        return fileValues.getOrDefault(key, "");
-    }
-
-    private void loadEnvFile(Path path) {
-        if (!Files.exists(path)) {
-            return;
-        }
-
-        try {
-            List<String> lines = Files.readAllLines(path);
-
-            for (String line : lines) {
-                String trimmedLine = line.trim();
-
-                if (
-                        trimmedLine.isBlank() ||
-                        trimmedLine.startsWith("#") ||
-                        !trimmedLine.contains("=")
-                ) {
-                    continue;
-                }
-
-                String[] parts = trimmedLine.split("=", 2);
-                fileValues.put(parts[0].trim(), parts[1].trim());
-            }
-        } catch (IOException ignored) {
-            fileValues.clear();
-        }
+        return System.getProperty(key);
     }
 }

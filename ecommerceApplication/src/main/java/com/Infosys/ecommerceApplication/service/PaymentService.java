@@ -160,15 +160,15 @@ public class PaymentService {
             String mid = requireEnv("PAYTM_MID");
             String merchantKey = requireEnv("PAYTM_MERCHANT_KEY");
             String website = defaultValue(
-                    envConfig.get("PAYTM_WEBSITE"),
+            		System.getProperty("PAYTM_WEBSITE"),
                     "WEBSTAGING"
             );
             String channelId = defaultValue(
-                    envConfig.get("PAYTM_CHANNEL_ID"),
+            		System.getProperty("PAYTM_CHANNEL_ID"),
                     "WEB"
             );
             String environment = defaultValue(
-                    envConfig.get("PAYTM_ENVIRONMENT"),
+            		System.getProperty("PAYTM_ENVIRONMENT"),
                     "STAGING"
             );
 
@@ -312,7 +312,7 @@ public class PaymentService {
             String mid = requireEnv("PAYTM_MID");
             String merchantKey = requireEnv("PAYTM_MERCHANT_KEY");
             String environment = defaultValue(
-                    envConfig.get("PAYTM_ENVIRONMENT"),
+            		System.getProperty("PAYTM_ENVIRONMENT"),
                     "STAGING"
             );
 
@@ -420,7 +420,7 @@ public class PaymentService {
     }
 
     private String requireEnv(String key) {
-        String value = envConfig.get(key);
+        String value = System.getProperty(key);
 
         if (value == null || value.isBlank()) {
             throw new RuntimeException(
