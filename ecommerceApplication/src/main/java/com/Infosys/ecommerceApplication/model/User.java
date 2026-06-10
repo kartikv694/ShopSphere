@@ -1,11 +1,10 @@
-
 package com.Infosys.ecommerceApplication.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name="users")
@@ -42,7 +41,8 @@ public class User {
         return email;
     }
 
-    @JsonIgnore
+    // WRITE_ONLY: accepted in requests, never sent in responses
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public String getPassword() {
         return password;
     }
@@ -67,4 +67,3 @@ public class User {
         this.role = role;
     }
 }
-
