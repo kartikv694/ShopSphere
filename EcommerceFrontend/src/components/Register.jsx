@@ -111,7 +111,7 @@ function Register(){
          onChange={handleChange}
         >
           <option value="CUSTOMER">Customer</option>
-          <option value="SELLER">Seller</option>
+          
         </select>
 
         <button>Register</button>
