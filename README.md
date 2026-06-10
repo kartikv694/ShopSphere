@@ -4,12 +4,6 @@ A full-stack E-Commerce web application built using React, Spring Boot,
 MySQL, JWT Authentication, Razorpay, Paytm, Cloudinary, Railway, and
 Vercel.
 
-# Live Demo
-
-Frontend: https://shop-sphere-lac-seven.vercel.app
-
-Backend API: https://shopsphere-infosys.up.railway.app
-
 # Overview
 
 ShopSphere is a modern e-commerce platform that allows users to browse
@@ -30,7 +24,7 @@ Online Payments - Admin Dashboard - Cloud Deployment
 
 # Database: - MySQL
 
-# Cloud Services: - Cloudinary - Railway - Vercel
+# Cloud Services: - Cloudinary 
 
 # Features
 
@@ -71,17 +65,9 @@ CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
 FRONTEND_URL=
 
-# Backend:
-
-Deployed on railway
-
-# Frontend:
-
-Deployed on vercel
-
 # Installation
 
-git clone https://github.com/your-username/ShopSphere.git
+git clone https://github.com/kartikv694/ShopSphere.git
 
 cd ShopSphere
 
