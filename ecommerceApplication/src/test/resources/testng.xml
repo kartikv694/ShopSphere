@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<suite name="ShopSphere Automation Suite" verbose="1" parallel="none">
+
+    <!-- US013: Setup Selenium Automation Framework -->
+    <test name="T063-T065: Framework Setup Verification">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.FrameworkSetupTest"/>
+        </classes>
+    </test>
+
+    <!-- US013 Day 33: Locators & Navigation -->
+    <test name="T066-T067: Navigation Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.NavigationTest"/>
+        </classes>
+    </test>
+
+    <!-- US014 Day 34: User Registration -->
+    <test name="T068-T071: Registration Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.RegistrationTest"/>
+        </classes>
+    </test>
+
+    <!-- US015 Day 35-36: Login & Logout -->
+    <test name="T072-T077: Login and Logout Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.LoginLogoutTest"/>
+        </classes>
+    </test>
+
+    <!-- US014 Day 37: Page Object Model refactor (login utilities) -->
+    <test name="T078-T079: POM Refactor Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.PomRefactorTest"/>
+        </classes>
+    </test>
+
+    <!-- US0015 Day 38: Product Listing -->
+    <test name="T080-T081: Product Listing Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.ProductListingTest"/>
+        </classes>
+    </test>
+
+    <!-- US0015 Day 39 / US016 Day 40: Product Details, Navigation, Search & Filtering -->
+    <test name="T082-T087: Product Details, Navigation, Search and Filtering Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.ProductDetailsAndSearchTest"/>
+        </classes>
+    </test>
+
+</suite>

@@ -108,6 +108,41 @@
     <version>3.0.0</version>
   </dependency>
 
+
+  <!-- ===== SELENIUM AUTOMATION DEPENDENCIES ===== -->
+
+  <!-- Selenium Java -->
+  <dependency>
+    <groupId>org.seleniumhq.selenium</groupId>
+    <artifactId>selenium-java</artifactId>
+    <version>4.18.1</version>
+    <scope>test</scope>
+  </dependency>
+
+  <!-- TestNG -->
+  <dependency>
+    <groupId>org.testng</groupId>
+    <artifactId>testng</artifactId>
+    <version>7.9.0</version>
+    <scope>test</scope>
+  </dependency>
+
+  <!-- WebDriverManager (auto downloads ChromeDriver) -->
+  <dependency>
+    <groupId>io.github.bonigarcia</groupId>
+    <artifactId>webdrivermanager</artifactId>
+    <version>5.7.0</version>
+    <scope>test</scope>
+  </dependency>
+
+  <!-- ExtentReports for HTML test reports -->
+  <dependency>
+    <groupId>com.aventstack</groupId>
+    <artifactId>extentreports</artifactId>
+    <version>5.1.1</version>
+    <scope>test</scope>
+  </dependency>
+
  </dependencies>
 
  <build>
@@ -116,6 +151,28 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-maven-plugin</artifactId>
    </plugin>
+
+   <!-- Maven Surefire: run TestNG suites -->
+		   <plugin>
+	  <groupId>org.apache.maven.plugins</groupId>
+	  <artifactId>maven-surefire-plugin</artifactId>
+	  <version>3.2.5</version>
+	  <dependencies>
+	    <dependency>
+	      <groupId>org.apache.maven.surefire</groupId>
+	      <artifactId>surefire-testng</artifactId>
+	      <version>3.2.5</version>
+	    </dependency>
+	  </dependencies>
+	  <configuration>
+	    <suiteXmlFiles>
+	      <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+	    </suiteXmlFiles>
+	    <excludes>
+	      <exclude>**/EcommerceApplicationTests.java</exclude>
+	    </excludes>
+	  </configuration>
+		</plugin>
   </plugins>
  </build>
 
