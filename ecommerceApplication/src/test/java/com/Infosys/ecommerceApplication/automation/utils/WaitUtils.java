@@ -72,4 +72,22 @@ public class WaitUtils {
         driver.switchTo().alert().accept();
         return text;
     }
+
+    /**
+     * Dismiss Chrome's native "Change your password" / data-breach dialog if it
+     * is currently showing. This dialog is rendered by the browser itself (not
+     * the page DOM under test), so it can intercept clicks on page elements
+     * even though BaseTest disables it via ChromeOptions/prefs as a first line
+     * of defense. This is a best-effort safety net: it sends ESCAPE to the
+     * active element, which closes Chrome's built-in dialogs without affecting
+     * normal page state.
+     */
+    public static void dismissBrowserPasswordDialogIfPresent(WebDriver driver) {
+        try {
+            driver.switchTo().activeElement()
+                .sendKeys(org.openqa.selenium.Keys.ESCAPE);
+        } catch (Exception ignored) {
+            // No dialog present, or not dismissible this way — safe to continue.
+        }
+    }
 }

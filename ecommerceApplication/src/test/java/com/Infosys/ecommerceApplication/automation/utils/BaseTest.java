@@ -35,6 +35,18 @@ public class BaseTest {
         options.addArguments("--window-size=1920,1080");
         options.addArguments("--disable-notifications");
 
+        // Disable Chrome's password manager / "password found in data breach" popups,
+        // autofill suggestions, and save-password prompts — these steal focus and
+        // block Selenium clicks on underlying elements.
+        options.addArguments("--disable-save-password-bubble");
+        options.addArguments("--disable-features=PasswordLeakDetection,AutofillServerCommunication,PasswordManagerOnboarding");
+        java.util.Map<String, Object> prefs = new java.util.HashMap<>();
+        prefs.put("credentials_enable_service", false);
+        prefs.put("profile.password_manager_enabled", false);
+        prefs.put("profile.password_manager_leak_detection", false);
+        prefs.put("autofill.profile_enabled", false);
+        options.setExperimentalOption("prefs", prefs);
+
         driver = new ChromeDriver(options);
 
         // T068: Implement waits (implicit)

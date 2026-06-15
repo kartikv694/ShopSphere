@@ -70,6 +70,13 @@ public class LoginPage {
         passwordEl.sendKeys(password);
 
         clickSubmit();
+
+        // Chrome may show a native "Change your password" / data-breach
+        // popup right after a successful login with a weak/leaked test
+        // password. This is browser-chrome UI, not part of the page, and
+        // it blocks subsequent clicks until dismissed.
+        try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+        WaitUtils.dismissBrowserPasswordDialogIfPresent(driver);
     }
 
     public void enterEmail(String email) {

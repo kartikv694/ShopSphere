@@ -124,6 +124,13 @@ public class RegisterPage {
         enterPassword(password);
         selectRole(role);
         clickSubmit();
+
+        // Chrome may show a native "Change your password" / data-breach
+        // popup right after registering with a weak/leaked test password.
+        // This is browser-chrome UI, not part of the page, and it blocks
+        // subsequent clicks/redirect checks until dismissed.
+        try { Thread.sleep(800); } catch (InterruptedException ignored) {}
+        WaitUtils.dismissBrowserPasswordDialogIfPresent(driver);
     }
 
     public boolean isErrorDisplayed() {

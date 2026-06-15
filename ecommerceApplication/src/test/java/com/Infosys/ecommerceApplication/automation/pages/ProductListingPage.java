@@ -127,6 +127,11 @@ public class ProductListingPage {
      * T087: Reusable — works for whichever card index is passed in.
      */
     public void openProductDetails(int index) {
+        // Dismiss Chrome's "Change your password" popup if it's covering
+        // the page (commonly appears right after login with a weak/leaked
+        // test password) — it intercepts clicks on underlying elements.
+        WaitUtils.dismissBrowserPasswordDialogIfPresent(driver);
+
         List<WebElement> cards = getAllProductCards();
         WebElement card = cards.get(index);
 
