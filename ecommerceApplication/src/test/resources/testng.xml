@@ -52,4 +52,11 @@
         </classes>
     </test>
 
+    <!-- US017 Day 41: Validate Add to Cart -->
+    <test name="T088-T089: Add to Cart Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.AddToCartTest"/>
+        </classes>
+    </test>
+
 </suite>
