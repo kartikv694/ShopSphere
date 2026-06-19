@@ -59,4 +59,11 @@
         </classes>
     </test>
 
+    <!-- US017 Day 42: Validate Cart Items -->
+    <test name="T090-T091: Validate Cart Items Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.ValidateCartItemsTest"/>
+        </classes>
+    </test>
+
 </suite>

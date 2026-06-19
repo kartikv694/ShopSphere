@@ -2,6 +2,7 @@ package com.Infosys.ecommerceApplication.automation.pages;
 
 import com.Infosys.ecommerceApplication.automation.utils.WaitUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -10,6 +11,7 @@ import java.util.List;
 /**
  * T065: POM — Page Object for /customer/cart
  * T088/T089 (Day 41, US017): Validate Add to Cart
+ * T090-T093 (Day 42, US018): Validate Cart Management
  *
  * Cart is stored in browser localStorage (key "cart"), not the backend, so
  * this page reads cart item names directly from the rendered DOM.
@@ -18,11 +20,27 @@ public class CartPage {
 
     private final WebDriver driver;
 
-    // Each cart row is a flex <div> containing an <img> and an <h2> with the product name
-    private final By cartItemNames = By.cssSelector("h2");
-    private final By cartItemRows  = By.xpath("//img[following-sibling::*//h2 or parent::div/following-sibling::div//h2]/parent::div");
-    private final By emptyCartText = By.xpath("//*[contains(text(),'empty') or contains(text(),'Empty') or contains(text(),'no items') or contains(text(),'No items')]");
-    private final By checkoutButton = By.xpath("//button[contains(text(),'Checkout') or contains(text(),'checkout')]");
+    // Each cart row is built as: <div> [<img>, <div>[<h2>name</h2>, <p>category</p>,
+    // <h3>price</h3>, qty controls, remove button]]. Scoping to <h2> elements
+    // that are NOT the page's "Order Summary" / "Your Cart is Empty" headings
+    // avoids accidentally counting those as cart items.
+    private final By cartItemNames    = By.xpath(
+        "//h2[not(contains(text(),'Order Summary')) and not(contains(text(),'Your Cart is Empty'))]"
+    );
+    private final By emptyCartHeading = By.xpath("//h2[contains(text(),'Your Cart is Empty')]");
+    private final By checkoutButton   = By.xpath("//button[contains(text(),'Proceed to Checkout')]");
+    private final By orderTotal       = By.xpath("//h3[contains(.,'Total')]/span");
+
+    // Quantity controls / remove button live inside the same row as the item's <h2>
+    private final By increaseQtyButton = By.xpath("//button[normalize-space(text())='+']");
+    private final By decreaseQtyButton = By.xpath("//button[normalize-space(text())='-']");
+    private final By quantityValue     = By.xpath("//button[normalize-space(text())='+']/preceding-sibling::h3");
+    private final By removeButton      = By.xpath("//button[contains(text(),'Remove')]");
+
+    // "Remove Product" confirmation modal
+    private final By removeModalHeading = By.xpath("//h2[contains(text(),'Remove Product')]");
+    private final By yesRemoveButton    = By.xpath("//button[contains(text(),'Yes Remove')]");
+    private final By cancelRemoveButton = By.xpath("//button[contains(text(),'Cancel')]");
 
     public CartPage(WebDriver driver) {
         this.driver = driver;
@@ -54,7 +72,7 @@ public class CartPage {
 
     public boolean isEmptyCartMessageShown() {
         try {
-            return WaitUtils.waitForVisible(driver, emptyCartText).isDisplayed();
+            return WaitUtils.waitForVisible(driver, emptyCartHeading).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -65,6 +83,75 @@ public class CartPage {
             return WaitUtils.waitForVisible(driver, checkoutButton).isDisplayed();
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public void clickCheckout() {
+        clickRobustly(checkoutButton);
+    }
+
+    /** T090: Returns the quantity shown for the first cart item. */
+    public int getFirstItemQuantity() {
+        return Integer.parseInt(driver.findElement(quantityValue).getText().trim());
+    }
+
+    /** T090: Clicks the "+" button for the first cart item N times. */
+    public void increaseFirstItemQuantity(int times) {
+        for (int i = 0; i < times; i++) {
+            WaitUtils.waitForClickable(driver, increaseQtyButton).click();
+            try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+        }
+    }
+
+    /** T090: Clicks the "-" button for the first cart item N times. */
+    public void decreaseFirstItemQuantity(int times) {
+        for (int i = 0; i < times; i++) {
+            WaitUtils.waitForClickable(driver, decreaseQtyButton).click();
+            try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+        }
+    }
+
+    /** T091: Reads the order total amount (numeric value after the ₹ symbol). */
+    public String getOrderTotalText() {
+        return WaitUtils.waitForVisible(driver, orderTotal).getText().trim();
+    }
+
+    /** T092: Clicks "Remove" on the first cart item, opening the confirmation modal. */
+    public void clickRemoveFirstItem() {
+        WaitUtils.dismissBrowserPasswordDialogIfPresent(driver);
+        clickRobustly(removeButton);
+    }
+
+    public boolean isRemoveConfirmationModalVisible() {
+        try {
+            return WaitUtils.waitForVisible(driver, removeModalHeading).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** T092: Confirms removal in the "Remove Product" modal. */
+    public void confirmRemove() {
+        clickRobustly(yesRemoveButton);
+    }
+
+    /** T092: Cancels removal in the "Remove Product" modal. */
+    public void cancelRemove() {
+        clickRobustly(cancelRemoveButton);
+    }
+
+    /**
+     * Flowbite's modal overlay can momentarily intercept clicks even after
+     * Selenium reports the underlying element as clickable. Retry with a
+     * JS click (bypasses the overlay hit-test) if intercepted.
+     */
+    private void clickRobustly(By locator) {
+        WebElement el = WaitUtils.waitForClickable(driver, locator);
+        try {
+            el.click();
+        } catch (org.openqa.selenium.ElementClickInterceptedException e) {
+            try { Thread.sleep(400); } catch (InterruptedException ignored) {}
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", el);
         }
     }
 }

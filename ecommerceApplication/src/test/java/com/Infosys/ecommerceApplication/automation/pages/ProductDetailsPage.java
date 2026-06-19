@@ -17,7 +17,10 @@ public class ProductDetailsPage {
 
     private final WebDriver driver;
 
-    private final By productNameHeading = By.cssSelector("h1, h2");
+    // The product title is the page's ONLY <h1> (see ProductsDetails.jsx line 215).
+    // The old "h1, h2" selector was matching the navbar logo <h2 class="logo">ShopSphere</h2>
+    // (which renders before this content in DOM order) instead of the actual product name.
+    private final By productNameHeading = By.tagName("h1");
     private final By increaseQtyButton  = By.xpath("//button[normalize-space(text())='+']");
     private final By decreaseQtyButton  = By.xpath("//button[normalize-space(text())='-']");
     private final By quantityValue      = By.xpath("//button[normalize-space(text())='+']/preceding-sibling::h3");

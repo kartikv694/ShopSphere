@@ -47,7 +47,14 @@ public class ProductListingPage {
     }
 
     public void open(String baseUrl) {
-        driver.get(baseUrl + "/customer/products");
+        // Retry once on renderer timeout — heavy test suites can cause the
+        // Chrome renderer to lag on the first navigation attempt.
+        try {
+            driver.get(baseUrl + "/customer/products");
+        } catch (org.openqa.selenium.TimeoutException e) {
+            try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
+            driver.navigate().refresh();
+        }
     }
 
     /** T086: Handle dynamic elements — wait for either products or the empty-state message. */
@@ -68,6 +75,27 @@ public class ProductListingPage {
     /** T080: Returns all product cards currently rendered. */
     public List<WebElement> getAllProductCards() {
         return driver.findElements(productCards);
+    }
+
+    /**
+     * Polls until at least `minCount` product cards have rendered, or
+     * times out after 20 seconds. Prevents IndexOutOfBoundsException when
+     * the products API/render is slow under heavy test-suite load.
+     */
+    public List<WebElement> waitForProductCards(int minCount) {
+        long deadline = System.currentTimeMillis() + 20_000;
+        List<WebElement> cards = getAllProductCards();
+        while (cards.size() < minCount && System.currentTimeMillis() < deadline) {
+            try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+            cards = getAllProductCards();
+        }
+        if (cards.isEmpty()) {
+            throw new RuntimeException(
+                "No product cards rendered on " + driver.getCurrentUrl()
+                    + " after waiting 20s. The products API may be slow or the page failed to load."
+            );
+        }
+        return cards;
     }
 
     /** T081: Checks at least one product is visible. */
@@ -132,7 +160,10 @@ public class ProductListingPage {
         // test password) — it intercepts clicks on underlying elements.
         WaitUtils.dismissBrowserPasswordDialogIfPresent(driver);
 
-        List<WebElement> cards = getAllProductCards();
+        // Ensure at least one product card has actually rendered before
+        // grabbing the list — under heavy load/slow renders, a fixed
+        // Thread.sleep() before calling this method isn't always enough.
+        List<WebElement> cards = waitForProductCards(index + 1);
         WebElement card = cards.get(index);
 
         String urlBefore = driver.getCurrentUrl();
