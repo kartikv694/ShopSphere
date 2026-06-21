@@ -16,22 +16,31 @@ Online Payments - Admin Dashboard - Cloud Deployment
 
 # Tech Stack
 
-# Frontend: - React.js - Vite - React Router DOM - Axios - Context API
+# Frontend: 
+  React.js - Vite - React Router DOM - Axios - Context API
 
-# Backend: - Java 21 - Spring Boot 3 - Spring Security - Spring Data JPA -
+# Backend: 
+  Java 21 - Spring Boot 3 - Spring Security - Spring Data JPA -
 
-# Hibernate - Maven
+# Hibernate 
+  Maven
 
-# Database: - MySQL
+# Database:  
+  MySQL
 
-# Cloud Services: - Cloudinary 
+# Cloud Services: 
+  Cloudinary 
 
 # Features
 
-# Customer Features: - Registration & Login - Browse Products - Shopping
-# Cart - Place Orders - Order History - Secure Payments
+# Customer Features: 
+  Registration & Login - Browse Products - Shopping
 
-# Admin Features: - Add/Update/Delete Products - Manage Orders - Dashboard
+# Cart -> Place Orders -> Order History -> Secure Payments
+
+# Admin Features: 
+  Add/Update/Delete Products - Manage Orders - Dashboard
+  
 # Analytics
 
 # Database Tables
