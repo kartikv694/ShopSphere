@@ -21,11 +21,21 @@ public class CartPage {
     private final WebDriver driver;
 
     // Each cart row is built as: <div> [<img>, <div>[<h2>name</h2>, <p>category</p>,
-    // <h3>price</h3>, qty controls, remove button]]. Scoping to <h2> elements
-    // that are NOT the page's "Order Summary" / "Your Cart is Empty" headings
-    // avoids accidentally counting those as cart items.
+    // <h3>price</h3>, qty controls, remove button]]. A text-exclusion locator
+    // (excluding "Order Summary"/"Your Cart is Empty") is NOT safe here — the
+    // navbar logo is also an <h2> (e.g. <h2 class="logo">ShopSphere</h2>) and
+    // slips through any text-based exclusion. Instead, scope structurally: an
+    // item-name <h2> always has a sibling <h3> price starting with ₹ in the
+    // same row div. No other <h2> on the page (navbar logo, "Order Summary",
+    // "Your Cart is Empty", "Remove Product" modal heading) has that sibling.
     private final By cartItemNames    = By.xpath(
-        "//h2[not(contains(text(),'Order Summary')) and not(contains(text(),'Your Cart is Empty'))]"
+        "//h2[following-sibling::h3[starts-with(normalize-space(.),'\u20B9')]]"
+    );
+    // Structural locator (mirrors the fix used for cartItemNames elsewhere): each
+    // item price <h3> sits right after the item's name <h2> in the same row div,
+    // and starts with ₹ but is never the "Total:" h3 in the Order Summary panel.
+    private final By cartItemPrices   = By.xpath(
+        "//h3[starts-with(normalize-space(.),'\u20B9') and not(contains(.,'Total'))]"
     );
     private final By emptyCartHeading = By.xpath("//h2[contains(text(),'Your Cart is Empty')]");
     private final By checkoutButton   = By.xpath("//button[contains(text(),'Proceed to Checkout')]");
@@ -68,6 +78,19 @@ public class CartPage {
 
     public int getCartItemCount() {
         return getCartItemNames().size();
+    }
+
+    /** T094: Returns the raw price text (e.g. "₹85000") for every cart item, in row order. */
+    public List<String> getCartItemPriceTexts() {
+        List<WebElement> prices = driver.findElements(cartItemPrices);
+        return prices.stream().map(WebElement::getText).map(String::trim).toList();
+    }
+
+    /** T094: Returns each cart item's price parsed as a number (₹ symbol and commas stripped). */
+    public List<Double> getCartItemPrices() {
+        return getCartItemPriceTexts().stream()
+            .map(t -> Double.parseDouble(t.replace("\u20B9", "").replace(",", "").trim()))
+            .toList();
     }
 
     public boolean isEmptyCartMessageShown() {

@@ -66,4 +66,11 @@
         </classes>
     </test>
 
+    <!-- US018 Day 43: Validate Cart Operations -->
+    <test name="T092-T095: Cart Operations Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.CartOperationsTest"/>
+        </classes>
+    </test>
+
 </suite>
