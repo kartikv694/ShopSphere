@@ -13,8 +13,14 @@ import java.util.List;
  * T088/T089 (Day 41, US017): Validate Add to Cart
  * T090-T093 (Day 42, US018): Validate Cart Management
  *
- * Cart is stored in browser localStorage (key "cart"), not the backend, so
- * this page reads cart item names directly from the rendered DOM.
+ * The cart is now persisted server-side (MySQL "cart" table, tied to the
+ * logged-in user via /api/cart/**), not in browser localStorage. The
+ * frontend still keeps a localStorage["cart"] mirror purely as a read
+ * cache for the navbar badge etc., but it is re-synced from the server on
+ * every CartPage mount — so tests must clear/seed the cart through the
+ * real /api/cart endpoints (see CartTestUtils) rather than by poking
+ * localStorage directly. This page object itself only reads from the
+ * rendered DOM, which is unaffected by where the data ultimately lives.
  */
 public class CartPage {
 

@@ -5,6 +5,7 @@ import com.Infosys.ecommerceApplication.automation.pages.LoginPage;
 import com.Infosys.ecommerceApplication.automation.pages.ProductDetailsPage;
 import com.Infosys.ecommerceApplication.automation.pages.ProductListingPage;
 import com.Infosys.ecommerceApplication.automation.utils.BaseTest;
+import com.Infosys.ecommerceApplication.automation.utils.CartTestUtils;
 import com.Infosys.ecommerceApplication.automation.utils.WaitUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -18,15 +19,21 @@ import java.util.List;
  * T094: Validate cart summary
  * T095: Handle edge cases
  *
- * Cart behavior under test (see CartPage.jsx):
+ * Cart behavior under test (see CartPage.jsx / CartController.java):
+ *  - The cart is persisted server-side (MySQL "cart" table tied to the
+ *    logged-in user), not just in browser localStorage. Every quantity
+ *    change / removal hits /api/cart/** and the page re-syncs from the
+ *    server response, so these tests verify the change actually round-
+ *    trips through the backend, not just the in-page state.
  *  - "+" always increments quantity by 1.
  *  - "-" decrements quantity by 1, UNLESS quantity is already 1, in which
  *    case it does NOT decrement — it opens the "Remove Product" confirmation
- *    modal instead (decreaseQuantity() short-circuits before updateCart()).
+ *    modal instead (decreaseQuantity() short-circuits before calling the
+ *    update API).
  *  - Removing requires confirming in that same modal ("Yes Remove"); the
  *    modal can also be dismissed with "Cancel", leaving the cart unchanged.
  *  - Order total = sum(price * quantity) across all cart rows, recomputed
- *    on every render from cartItems state.
+ *    on every render from cartItems state (itself sourced from the server).
  */
 public class CartOperationsTest extends BaseTest {
 
@@ -44,11 +51,11 @@ public class CartOperationsTest extends BaseTest {
             try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
         }
 
-        // Clear existing cart for a clean state
+        // Clear existing cart for a clean state. The cart is server-backed,
+        // so clearing localStorage alone is not enough.
         driver.get(BASE_URL + "/customer/cart");
         try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
-        ((org.openqa.selenium.JavascriptExecutor) driver)
-            .executeScript("window.localStorage.removeItem('cart');");
+        CartTestUtils.clearServerCart(driver, BASE_URL);
         driver.navigate().refresh();
 
         ProductListingPage productsPage = new ProductListingPage(driver);
@@ -66,12 +73,11 @@ public class CartOperationsTest extends BaseTest {
         try { Thread.sleep(500); } catch (InterruptedException ignored) {}
     }
 
-    /** Empties the cart via localStorage and reloads, leaving the user on an empty /customer/cart. */
+    /** Empties the cart server-side and reloads, leaving the user on an empty /customer/cart. */
     private void clearCartAndReload() {
-        ((org.openqa.selenium.JavascriptExecutor) driver)
-            .executeScript("window.localStorage.removeItem('cart');");
+        CartTestUtils.clearServerCart(driver, BASE_URL);
         driver.navigate().refresh();
-        try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(800); } catch (InterruptedException ignored) {}
     }
 
     private double parseMoney(String text) {
@@ -135,7 +141,7 @@ public class CartOperationsTest extends BaseTest {
         System.out.println("[PASS] T092: Quantity correctly decreased from " + before + " to " + after + ".");
     }
 
-    /** T092: Quantity updates persist after a page refresh (cart is backed by localStorage). */
+    /** T092: Quantity updates persist after a page refresh (cart is backed by the server, not just localStorage). */
     @Test(description = "T092: Updated quantity persists after page refresh")
     public void testQuantityPersistsAfterRefresh() {
         loginAndAddOneProduct();

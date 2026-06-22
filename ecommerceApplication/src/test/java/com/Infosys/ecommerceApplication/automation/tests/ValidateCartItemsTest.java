@@ -1,6 +1,7 @@
 package com.Infosys.ecommerceApplication.automation.tests;
 
 import com.Infosys.ecommerceApplication.automation.utils.BaseTest;
+import com.Infosys.ecommerceApplication.automation.utils.CartTestUtils;
 import com.Infosys.ecommerceApplication.automation.utils.WaitUtils;
 import com.Infosys.ecommerceApplication.automation.pages.LoginPage;
 import com.Infosys.ecommerceApplication.automation.pages.ProductListingPage;
@@ -62,11 +63,11 @@ public class ValidateCartItemsTest extends BaseTest {
             try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
         }
 
-        // Clear existing cart for a clean state
+        // Clear existing cart for a clean state. The cart is server-backed,
+        // so clearing localStorage alone is not enough.
         driver.get(BASE_URL + "/customer/cart");
         try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
-        ((org.openqa.selenium.JavascriptExecutor) driver)
-            .executeScript("window.localStorage.removeItem('cart');");
+        CartTestUtils.clearServerCart(driver, BASE_URL);
         driver.navigate().refresh();
 
         // Add the first product via the real Add to Cart flow
@@ -124,8 +125,7 @@ public class ValidateCartItemsTest extends BaseTest {
         // Clear existing cart
         driver.get(BASE_URL + "/customer/cart");
         try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
-        ((org.openqa.selenium.JavascriptExecutor) driver)
-            .executeScript("window.localStorage.removeItem('cart');");
+        CartTestUtils.clearServerCart(driver, BASE_URL);
         driver.navigate().refresh();
 
         // Open product details and record the product name before adding

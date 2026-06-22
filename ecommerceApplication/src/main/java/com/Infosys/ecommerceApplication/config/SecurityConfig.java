@@ -117,7 +117,7 @@ public class SecurityConfig {
 
                 .requestMatchers(
                         "/api/cart/**"
-                ).permitAll()
+                ).hasRole("CUSTOMER")
 
                 // ORDERS
                 .requestMatchers(

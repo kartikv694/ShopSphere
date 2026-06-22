@@ -27,6 +27,19 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    // Cross-device sync of the customer's delivery address picker. Stored
+    // as a raw JSON string (same shape the frontend already builds:
+    // fullName/fullAddress/address/city/state/pincode/lat/lng) so it can
+    // change shape on the frontend without needing a migration here.
+    @Column(columnDefinition = "TEXT")
+    private String savedLocation;
+
+    // Cross-device sync of "Recently Viewed" products, capped at the last 6
+    // (same cap the frontend already enforced when this lived only in
+    // localStorage). Stored as a raw JSON array string of product objects.
+    @Column(columnDefinition = "TEXT")
+    private String recentlyViewed;
+
     // getters setters
 
     public Long getId() {
@@ -49,6 +62,22 @@ public class User {
 
     public Role getRole() {
         return role;
+    }
+
+    public String getSavedLocation() {
+        return savedLocation;
+    }
+
+    public void setSavedLocation(String savedLocation) {
+        this.savedLocation = savedLocation;
+    }
+
+    public String getRecentlyViewed() {
+        return recentlyViewed;
+    }
+
+    public void setRecentlyViewed(String recentlyViewed) {
+        this.recentlyViewed = recentlyViewed;
     }
 
     public void setName(String name) {

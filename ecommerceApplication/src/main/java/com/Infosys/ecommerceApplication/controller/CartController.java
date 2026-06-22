@@ -1,11 +1,14 @@
 package com.Infosys.ecommerceApplication.controller;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.Infosys.ecommerceApplication.dto.CartItemResponse;
 import com.Infosys.ecommerceApplication.model.Cart;
 import com.Infosys.ecommerceApplication.service.CartService;
 
@@ -16,49 +19,58 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
-    // ✅ 1. ADD TO CART
+    // The cart owner is always taken from the authenticated JWT principal,
+    // never from a client-supplied userId, so one logged-in user can never
+    // read or modify another user's cart.
+
+    // 1. ADD TO CART
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(
-            @RequestParam Long userId,
             @RequestParam Long productId,
-            @RequestParam int quantity) {
+            @RequestParam int quantity,
+            Principal principal) {
 
-        Cart cart = cartService.addToCart(userId, productId, quantity);
-        return ResponseEntity.ok(cart);
+        Cart cart = cartService.addToCart(principal.getName(), productId, quantity);
+        return ResponseEntity.ok(CartItemResponse.fromEntity(cart));
     }
 
-    // ✅ 2. GET CART
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<Cart>> getCart(@PathVariable Long userId) {
-        return ResponseEntity.ok(cartService.getCartByUserId(userId));
+    // 2. GET CART (for the logged-in user)
+    @GetMapping
+    public ResponseEntity<List<CartItemResponse>> getCart(Principal principal) {
+        List<CartItemResponse> items = cartService.getCartForUser(principal.getName())
+                .stream()
+                .map(CartItemResponse::fromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(items);
     }
 
-    // ✅ 3. UPDATE QUANTITY
+    // 3. UPDATE QUANTITY
     @PutMapping("/update")
     public ResponseEntity<?> updateQuantity(
-            @RequestParam Long userId,
             @RequestParam Long productId,
-            @RequestParam int quantity) {
+            @RequestParam int quantity,
+            Principal principal) {
 
-        Cart updated = cartService.updateQuantity(userId, productId, quantity);
-        return ResponseEntity.ok(updated);
+        Cart updated = cartService.updateQuantity(principal.getName(), productId, quantity);
+        return ResponseEntity.ok(CartItemResponse.fromEntity(updated));
     }
 
-    // ✅ 4. REMOVE ITEM
+    // 4. REMOVE ITEM
     @DeleteMapping("/remove")
     public ResponseEntity<?> removeItem(
-            @RequestParam Long userId,
-            @RequestParam Long productId) {
+            @RequestParam Long productId,
+            Principal principal) {
 
-        cartService.removeItem(userId, productId);
+        cartService.removeItem(principal.getName(), productId);
         return ResponseEntity.ok("Item removed");
     }
 
-    // ✅ 5. CLEAR CART
-    @DeleteMapping("/clear/{userId}")
-    public ResponseEntity<?> clearCart(@PathVariable Long userId) {
+    // 5. CLEAR CART
+    @DeleteMapping("/clear")
+    public ResponseEntity<?> clearCart(Principal principal) {
 
-        cartService.clearCart(userId);
+        cartService.clearCart(principal.getName());
         return ResponseEntity.ok("Cart cleared");
     }
 }

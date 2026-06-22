@@ -1,6 +1,7 @@
 package com.Infosys.ecommerceApplication.automation.tests;
 
 import com.Infosys.ecommerceApplication.automation.utils.BaseTest;
+import com.Infosys.ecommerceApplication.automation.utils.CartTestUtils;
 import com.Infosys.ecommerceApplication.automation.utils.WaitUtils;
 import com.Infosys.ecommerceApplication.automation.pages.LoginPage;
 import com.Infosys.ecommerceApplication.automation.pages.ProductListingPage;
@@ -107,11 +108,13 @@ public class AddToCartTest extends BaseTest {
         }
 
         // Start from a clean cart state for a deterministic count check.
+        // The cart is server-backed now, so localStorage alone can't clear
+        // it — call the real /api/cart/clear endpoint.
         driver.get(BASE_URL + "/customer/cart");
         try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
-        ((org.openqa.selenium.JavascriptExecutor) driver)
-            .executeScript("window.localStorage.removeItem('cart');");
+        CartTestUtils.clearServerCart(driver, BASE_URL);
         driver.navigate().refresh();
+        try { Thread.sleep(800); } catch (InterruptedException ignored) {}
 
         CartPage cartPageBefore = new CartPage(driver);
         int countBefore = cartPageBefore.getCartItemCount();

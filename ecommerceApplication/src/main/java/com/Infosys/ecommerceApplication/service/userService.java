@@ -93,6 +93,34 @@ public class userService {
                 );
     }
 
+    // ===================== SAVED LOCATION =====================
+    // Cross-device sync for the delivery address picker — same data that
+    // previously lived only in localStorage["selectedLocation"].
+
+    public String getSavedLocation(String email) {
+        return findUserByEmail(email).getSavedLocation();
+    }
+
+    public void updateSavedLocation(String email, String locationJson) {
+        User user = findUserByEmail(email);
+        user.setSavedLocation(locationJson);
+        repo.save(user);
+    }
+
+    // ===================== RECENTLY VIEWED =====================
+    // Cross-device sync for "Recently Viewed" products — same data that
+    // previously lived only in localStorage["recentlyViewed"].
+
+    public String getRecentlyViewed(String email) {
+        return findUserByEmail(email).getRecentlyViewed();
+    }
+
+    public void updateRecentlyViewed(String email, String recentlyViewedJson) {
+        User user = findUserByEmail(email);
+        user.setRecentlyViewed(recentlyViewedJson);
+        repo.save(user);
+    }
+
     private UserProfileResponse toProfileResponse(User user) {
         return new UserProfileResponse(
                 user.getId(),

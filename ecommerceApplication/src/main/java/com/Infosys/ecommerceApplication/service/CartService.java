@@ -6,46 +6,61 @@ import org.springframework.stereotype.Service;
 
 import com.Infosys.ecommerceApplication.model.Cart;
 import com.Infosys.ecommerceApplication.model.Product;
+import com.Infosys.ecommerceApplication.model.User;
 import com.Infosys.ecommerceApplication.repository.CartRepository;
 import com.Infosys.ecommerceApplication.repository.ProductRepository;
-
-
+import com.Infosys.ecommerceApplication.repository.userRepository;
 
 @Service
 public class CartService {
 
     @Autowired
     private CartRepository cartRepository;
-    
+
     @Autowired
     private ProductRepository productRepository;
 
-    // ✅ 1. Add to Cart
-    public Cart addToCart(Long userId, Long productId, int quantity) {
+    @Autowired
+    private userRepository userRepository;
+
+    // Resolves the authenticated principal's email into the actual User
+    // entity, so every cart operation is scoped to the logged-in user only.
+    private User resolveUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    // 1. Add to Cart
+    public Cart addToCart(String email, Long productId, int quantity) {
+
+        User user = resolveUser(email);
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        Cart existingCartItem = cartRepository.findByUserIdAndProduct_Id(userId, productId);
+        Cart existingCartItem = cartRepository.findByUserAndProduct_Id(user, productId);
 
         if (existingCartItem != null) {
             existingCartItem.setQuantity(existingCartItem.getQuantity() + quantity);
             return cartRepository.save(existingCartItem);
         } else {
-            Cart newCartItem = new Cart(userId, product, quantity);
+            Cart newCartItem = new Cart(user, product, quantity);
             return cartRepository.save(newCartItem);
         }
     }
 
-    // ✅ 2. Get Cart by User
-    public List<Cart> getCartByUserId(Long userId) {
-        return cartRepository.findByUserId(userId);
+    // 2. Get Cart for the current user
+    public List<Cart> getCartForUser(String email) {
+        User user = resolveUser(email);
+        return cartRepository.findByUser(user);
     }
 
-    // ✅ 3. Update Quantity
-    public Cart updateQuantity(Long userId, Long productId, int quantity) {
+    // 3. Update Quantity
+    public Cart updateQuantity(String email, Long productId, int quantity) {
 
-        Cart cartItem = cartRepository.findByUserIdAndProduct_Id(userId, productId);
+        User user = resolveUser(email);
+
+        Cart cartItem = cartRepository.findByUserAndProduct_Id(user, productId);
 
         if (cartItem != null) {
             cartItem.setQuantity(quantity);
@@ -55,10 +70,12 @@ public class CartService {
         }
     }
 
-    // ✅ 4. Remove Single Item
-    public void removeItem(Long userId, Long productId) {
+    // 4. Remove Single Item
+    public void removeItem(String email, Long productId) {
 
-        Cart cartItem = cartRepository.findByUserIdAndProduct_Id(userId, productId);
+        User user = resolveUser(email);
+
+        Cart cartItem = cartRepository.findByUserAndProduct_Id(user, productId);
 
         if (cartItem != null) {
             cartRepository.delete(cartItem);
@@ -67,10 +84,12 @@ public class CartService {
         }
     }
 
-    // ✅ 5. Clear Full Cart
-    public void clearCart(Long userId) {
+    // 5. Clear Full Cart
+    public void clearCart(String email) {
 
-        List<Cart> cartItems = cartRepository.findByUserId(userId);
+        User user = resolveUser(email);
+
+        List<Cart> cartItems = cartRepository.findByUser(user);
         cartRepository.deleteAll(cartItems);
     }
 }

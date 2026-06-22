@@ -73,4 +73,11 @@
         </classes>
     </test>
 
+    <!-- JWT Refresh Token / Persistent Session Tests -->
+    <test name="Refresh Token and Persistent Session Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.TokenRefreshTest"/>
+        </classes>
+    </test>
+
 </suite>
