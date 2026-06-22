@@ -1,6 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import {
+  syncCartFromServer,
+  updateCartQuantity,
+  removeFromCart
+} from "../utils/cartApi";
+import "./CartPage.css";
 
 function CartPage() {
 
@@ -8,58 +15,84 @@ function CartPage() {
     () => JSON.parse(localStorage.getItem("cart")) || []
   );
 
+  const [loading, setLoading] = useState(true);
+
   const [openDeleteModal, setOpenDeleteModal] =
     useState(false);
 
   const [selectedProductId, setSelectedProductId] =
     useState(null);
 
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
 
-  // UPDATE CART
-  const updateCart = (updatedCart) => {
+  // LOAD THE AUTHORITATIVE CART FROM THE SERVER ON MOUNT
+  useEffect(() => {
 
-    setCartItems(updatedCart);
+    let isMounted = true;
 
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(updatedCart)
-    );
+    syncCartFromServer().then((items) => {
 
-    window.dispatchEvent(
-      new Event("cartUpdated")
-    );
+      if (isMounted) {
 
-  };
-
-  // INCREASE QUANTITY
-  const increaseQuantity = (id) => {
-
-    const updatedCart = cartItems.map((item) => {
-
-      if (item.id === id) {
-
-        return {
-          ...item,
-          quantity: item.quantity + 1
-        };
+        setCartItems(items);
+        setLoading(false);
 
       }
 
-      return item;
-
     });
 
-    updateCart(updatedCart);
+    return () => {
+      isMounted = false;
+    };
 
-  };
+  }, []);
 
-  // DECREASE QUANTITY
-  const decreaseQuantity = (id) => {
+  // INCREASE QUANTITY
+  const increaseQuantity = async (id) => {
 
     const product = cartItems.find(
       (item) => item.id === id
     );
+
+    if (!product) return;
+
+    const nextQuantity = product.quantity + 1;
+
+    // OPTIMISTIC UPDATE
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, quantity: nextQuantity }
+          : item
+      )
+    );
+
+    try {
+
+      const updated = await updateCartQuantity(id, nextQuantity);
+      setCartItems(updated);
+
+    } catch (error) {
+
+      console.log(error);
+      toast.error("Could not update quantity");
+
+      // ROLL BACK ON FAILURE
+      const refreshed = await syncCartFromServer();
+      setCartItems(refreshed);
+
+    }
+
+  };
+
+  // DECREASE QUANTITY
+  const decreaseQuantity = async (id) => {
+
+    const product = cartItems.find(
+      (item) => item.id === id
+    );
+
+    if (!product) return;
 
     // IF ONLY 1 QUANTITY LEFT
     if (product.quantity === 1) {
@@ -72,35 +105,58 @@ function CartPage() {
 
     }
 
-    const updatedCart = cartItems.map((item) => {
+    const nextQuantity = product.quantity - 1;
 
-      if (item.id === id) {
+    // OPTIMISTIC UPDATE
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, quantity: nextQuantity }
+          : item
+      )
+    );
 
-        return {
-          ...item,
-          quantity: item.quantity - 1
-        };
+    try {
 
-      }
+      const updated = await updateCartQuantity(id, nextQuantity);
+      setCartItems(updated);
 
-      return item;
+    } catch (error) {
 
-    });
+      console.log(error);
+      toast.error("Could not update quantity");
 
-    updateCart(updatedCart);
+      const refreshed = await syncCartFromServer();
+      setCartItems(refreshed);
+
+    }
 
   };
 
   // REMOVE PRODUCT
-  const removeProduct = (id) => {
+  const removeProduct = async (id) => {
 
-    const updatedCart = cartItems.filter(
-      (item) => item.id !== id
+    // OPTIMISTIC UPDATE
+    setCartItems((prev) =>
+      prev.filter((item) => item.id !== id)
     );
 
-    updateCart(updatedCart);
-
     setOpenDeleteModal(false);
+
+    try {
+
+      const updated = await removeFromCart(id);
+      setCartItems(updated);
+
+    } catch (error) {
+
+      console.log(error);
+      toast.error("Could not remove item");
+
+      const refreshed = await syncCartFromServer();
+      setCartItems(refreshed);
+
+    }
 
   };
 
@@ -119,68 +175,47 @@ function CartPage() {
 
     <>
 
-      <div
-        style={{
-          background: "#EAEDED",
-          minHeight: "100vh",
-          padding: "30px"
-        }}
-      >
+      <div className="cart-page">
 
-        <h1
-          style={{
-            marginBottom: "30px",
-            fontSize: "32px"
-          }}
-        >
+        <h1 className="cart-page-title">
           Shopping Cart
         </h1>
 
-        {cartItems.length === 0 ? (
+        {loading ? (
 
-          <div
-            style={{
-              background: "white",
-              padding: "30px",
-              borderRadius: "10px"
-            }}
-          >
+          <div className="cart-empty-box">
+            <h2>Loading your cart...</h2>
+          </div>
+
+        ) : cartItems.length === 0 ? (
+
+          <div className="cart-empty-box">
 
             <h2>
               Your Cart is Empty
             </h2>
 
+            <button
+              className="cart-continue-btn"
+              onClick={() => navigate("/customer/category/all")}
+            >
+              Continue Shopping
+            </button>
+
           </div>
 
         ) : (
 
-          <div
-            style={{
-              display: "flex",
-              gap: "30px"
-            }}
-          >
+          <div className="cart-layout">
 
             {/* LEFT SIDE */}
-            <div
-              style={{
-                flex: 3,
-                background: "white",
-                padding: "20px",
-                borderRadius: "10px"
-              }}
-            >
+            <div className="cart-items-panel">
 
               {cartItems.map((item) => (
 
                 <div
                   key={item.id}
-                  style={{
-                    display: "flex",
-                    gap: "30px",
-                    padding: "20px 0",
-                    borderBottom: "1px solid #ddd"
-                  }}
+                  className="cart-item-row"
                 >
 
                   {/* IMAGE */}
@@ -190,66 +225,37 @@ function CartPage() {
                       "https://via.placeholder.com/200"
                     }
                     alt={item.name}
-                    style={{
-                      width: "180px",
-                      height: "180px",
-                      objectFit: "contain"
-                    }}
+                    className="cart-item-image"
                   />
 
                   {/* DETAILS */}
-                  <div
-                    style={{
-                      flex: 1
-                    }}
-                  >
+                  <div className="cart-item-details">
 
-                    <h2
-                      style={{
-                        fontSize: "22px",
-                        marginBottom: "10px"
-                      }}
-                    >
+                    <h2 className="cart-item-name">
                       {item.name}
                     </h2>
 
-                    <p
-                      style={{
-                        color: "#565959",
-                        marginBottom: "10px"
-                      }}
-                    >
+                    <p className="cart-item-category">
                       {item.category}
                     </p>
 
-                    <h3
-                      style={{
-                        marginBottom: "20px",
-                        color: "#B12704"
-                      }}
-                    >
+                    <h3 className="cart-item-price">
                       ₹{item.price}
                     </h3>
 
                     {/* QUANTITY */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "15px"
-                      }}
-                    >
+                    <div className="cart-qty-row">
 
                       <button
                         onClick={() =>
                           decreaseQuantity(item.id)
                         }
-                        style={styles.qtyBtn}
+                        className="cart-qty-btn"
                       >
                         -
                       </button>
 
-                      <h3>
+                      <h3 className="cart-qty-value">
                         {item.quantity}
                       </h3>
 
@@ -257,7 +263,7 @@ function CartPage() {
                         onClick={() =>
                           increaseQuantity(item.id)
                         }
-                        style={styles.qtyBtn}
+                        className="cart-qty-btn"
                       >
                         +
                       </button>
@@ -273,7 +279,7 @@ function CartPage() {
                         setOpenDeleteModal(true);
 
                       }}
-                      style={styles.removeBtn}
+                      className="cart-remove-btn"
                     >
                       Remove
                     </button>
@@ -287,42 +293,25 @@ function CartPage() {
             </div>
 
             {/* RIGHT SIDE */}
-            <div
-              style={{
-                flex: 1,
-                background: "white",
-                padding: "20px",
-                borderRadius: "10px",
-                height: "fit-content"
-              }}
-            >
+            <div className="cart-summary-panel">
 
-              <h2
-                style={{
-                  marginBottom: "20px"
-                }}
-              >
+              <h2 className="cart-summary-title">
                 Order Summary
               </h2>
 
-              <h3>
+              <h3 className="cart-summary-total">
                 Total:
-                <span
-                  style={{
-                    marginLeft: "10px",
-                    color: "#B12704"
-                  }}
-                >
+                <span className="cart-summary-total-value">
                   ₹{totalPrice}
                 </span>
               </h3>
 
-                <button
-                  style={styles.checkoutBtn}
-                  onClick={() => navigate("/checkout")}
-                >
-                  Proceed to Checkout
-                </button>
+              <button
+                className="cart-checkout-btn"
+                onClick={() => navigate("/checkout")}
+              >
+                Proceed to Checkout
+              </button>
 
             </div>
 
@@ -333,149 +322,53 @@ function CartPage() {
       </div>
 
       {/* DELETE CONFIRMATION MODAL */}
-          <Modal
-              show={openDeleteModal}
-              onClose={() => setOpenDeleteModal(false)}
-          >
+      <Modal
+        show={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+      >
 
-              <div
-                  style={{
-                      padding: "35px",
-                      backgroundColor: "white",
-                      borderRadius: "16px",
-                      width: "500px",
-                      maxWidth: "90vw"
-                  }}
-              >
+        <div className="cart-modal-box">
 
-                  <h2
-                      style={{
-                          fontSize: "30px",
-                          fontWeight: "700",
-                          marginBottom: "18px",
-                          color: "#111827"
-                      }}
-                  >
-                      Remove Product
-                  </h2>
+          <h2 className="cart-modal-title">
+            Remove Product
+          </h2>
 
-                  <p
-                      style={{
-                          fontSize: "17px",
-                          color: "#4b5563",
-                          lineHeight: "30px",
-                          marginBottom: "30px"
-                      }}
-                  >
-                      Are you sure you want to remove this product from your cart?
-                  </p>
+          <p className="cart-modal-text">
+            Are you sure you want to remove this product from your cart?
+          </p>
 
-                  <div
-                      style={{
-                          display: "flex",
-                          gap: "18px"
-                      }}
-                  >
+          <div className="cart-modal-actions">
 
-                      {/* YES REMOVE */}
-                      <button
-                          onClick={() =>
-                              removeProduct(selectedProductId)
-                          }
-                          onMouseEnter={(e) =>
-                              e.target.style.background = "#b91c1c"
-                          }
-                          onMouseLeave={(e) =>
-                              e.target.style.background = "#dc2626"
-                          }
-                          style={{
-                              padding: "12px 26px",
-                              background: "#dc2626",
-                              color: "white",
-                              border: "none",
-                              borderRadius: "8px",
-                              cursor: "pointer",
-                              fontWeight: "600",
-                              fontSize: "16px",
-                              transition: "0.3s"
-                          }}
-                      >
-                          Yes Remove
-                      </button>
+            {/* YES REMOVE */}
+            <button
+              onClick={() =>
+                removeProduct(selectedProductId)
+              }
+              className="cart-modal-confirm-btn"
+            >
+              Yes Remove
+            </button>
 
-                      {/* CANCEL */}
-                      <button
-                          onClick={() =>
-                              setOpenDeleteModal(false)
-                          }
-                          onMouseEnter={(e) =>
-                              e.target.style.background = "#d1d5db"
-                          }
-                          onMouseLeave={(e) =>
-                              e.target.style.background = "#e5e7eb"
-                          }
-                          style={{
-                              padding: "12px 26px",
-                              background: "#e5e7eb",
-                              color: "#111827",
-                              border: "none",
-                              borderRadius: "8px",
-                              cursor: "pointer",
-                              fontWeight: "600",
-                              fontSize: "16px",
-                              transition: "0.3s"
-                          }}
-                      >
-                          Cancel
-                      </button>
+            {/* CANCEL */}
+            <button
+              onClick={() =>
+                setOpenDeleteModal(false)
+              }
+              className="cart-modal-cancel-btn"
+            >
+              Cancel
+            </button>
 
-                  </div>
+          </div>
 
-              </div>
+        </div>
 
-          </Modal>
+      </Modal>
 
     </>
 
   );
 
 }
-
-const styles = {
-
-  qtyBtn: {
-    width: "35px",
-    height: "35px",
-    borderRadius: "50%",
-    border: "1px solid #ccc",
-    background: "#f0f2f2",
-    cursor: "pointer",
-    fontSize: "18px",
-    fontWeight: "bold"
-  },
-
-  removeBtn: {
-    marginTop: "20px",
-    padding: "10px 18px",
-    border: "none",
-    background: "#f44336",
-    color: "white",
-    borderRadius: "6px",
-    cursor: "pointer"
-  },
-
-  checkoutBtn: {
-    marginTop: "30px",
-    width: "100%",
-    padding: "12px",
-    border: "none",
-    background: "#FFD814",
-    borderRadius: "25px",
-    fontSize: "16px",
-    fontWeight: "600",
-    cursor: "pointer"
-  }
-
-};
 
 export default CartPage;

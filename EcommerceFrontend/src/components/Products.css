@@ -204,6 +204,19 @@
   min-height: 90px;
 }
 
+/* CATEGORY */
+
+.product-category{
+
+  color: #666;
+
+  padding: 0 20px;
+
+  margin-bottom: 14px;
+
+  text-transform: capitalize;
+}
+
 /* PRICE */
 
 .price{
@@ -271,6 +284,60 @@
   .title{
 
     font-size: 34px;
+  }
+
+}
+
+@media(max-width: 480px){
+
+  .container{
+    padding: 16px;
+  }
+
+  .title{
+    font-size: 26px;
+    margin-bottom: 20px;
+  }
+
+  .image-wrapper,
+  .image-wrapper img{
+    height: 200px;
+  }
+
+  .card h3{
+    font-size: 18px;
+    line-height: 26px;
+    padding: 14px 14px 8px;
+    min-height: auto;
+  }
+
+  .price{
+    font-size: 24px;
+    padding: 0 14px;
+    margin-bottom: 16px;
+  }
+
+  .product-category{
+    padding: 0 14px;
+    margin-bottom: 10px;
+  }
+
+  .cart-btn{
+    margin: auto 14px 14px;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .add-btn{
+    width: 100%;
+    padding: 12px 18px;
+    margin-bottom: 24px;
+  }
+
+  .slider-btn{
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
   }
 
 }

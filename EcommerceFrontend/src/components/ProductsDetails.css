@@ -1,0 +1,322 @@
+.pd-loading {
+  padding: 90px 40px 40px;
+}
+
+.pd-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 60px;
+  padding: 40px;
+  padding-top: 90px;
+  background: #fff;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.pd-left {
+  flex: 1 1 500px;
+  min-width: 0;
+}
+
+.pd-back-btn {
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  background: #232f3e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.pd-image-section {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.pd-thumbnails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.pd-thumbnail {
+  width: 75px;
+  height: 75px;
+  object-fit: contain;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 5px;
+  background: white;
+  transition: 0.3s;
+}
+
+.pd-thumbnail-active {
+  border: 2px solid #ff9900;
+}
+
+.pd-main-image {
+  width: 500px;
+  max-width: 100%;
+  height: 500px;
+  object-fit: contain;
+  background: white;
+  border-radius: 14px;
+}
+
+.pd-details {
+  flex: 1 1 320px;
+  min-width: 0;
+  margin-top: 45px;
+}
+
+.pd-name {
+  word-break: break-word;
+}
+
+.pd-category {
+  color: #565959;
+  margin-top: 10px;
+  text-transform: capitalize;
+  font-size: 17px;
+}
+
+.pd-description {
+  margin-top: 20px;
+  font-size: 17px;
+  line-height: 30px;
+  color: #333;
+}
+
+.pd-price {
+  margin-top: 25px;
+  color: #b12704;
+  font-size: 42px;
+  font-weight: 700;
+}
+
+.pd-qty-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.pd-qty-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  background: #f0f2f2;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.pd-qty-btn:hover {
+  background: #e3e6e6;
+}
+
+.pd-qty-value {
+  min-width: 20px;
+  text-align: center;
+}
+
+.pd-add-to-cart-btn {
+  margin-top: 30px;
+  padding: 14px 40px;
+  background: #ffd814;
+  border: none;
+  color: black;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 30px;
+  font-weight: 600;
+  transition: 0.3s;
+  width: 100%;
+  max-width: 320px;
+}
+
+.pd-add-to-cart-btn:hover {
+  background: #f7ca00;
+}
+
+/* MODAL */
+
+.pd-modal-box {
+  background: white;
+  padding: 30px;
+  border-radius: 14px;
+  width: 450px;
+  max-width: 90vw;
+  box-sizing: border-box;
+}
+
+.pd-modal-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.pd-modal-text {
+  font-size: 17px;
+  margin-bottom: 30px;
+  color: #4b5563;
+}
+
+.pd-modal-actions {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.pd-modal-continue-btn,
+.pd-modal-cart-btn {
+  padding: 12px 24px;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  flex: 1;
+  min-width: 140px;
+}
+
+.pd-modal-continue-btn {
+  background: #2563eb;
+}
+
+.pd-modal-continue-btn:hover {
+  background: #1d4ed8;
+}
+
+.pd-modal-cart-btn {
+  background: green;
+}
+
+.pd-modal-cart-btn:hover {
+  background: #006400;
+}
+
+/* ===================== RESPONSIVE ===================== */
+
+@media (max-width: 992px) {
+
+  .pd-container {
+    gap: 36px;
+    padding: 30px;
+    padding-top: 80px;
+  }
+
+  .pd-main-image {
+    width: 380px;
+    height: 380px;
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .pd-container {
+    flex-direction: column;
+    padding: 20px;
+    padding-top: 76px;
+  }
+
+  .pd-details {
+    margin-top: 10px;
+  }
+
+  .pd-image-section {
+    justify-content: center;
+  }
+
+  .pd-price {
+    font-size: 32px;
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  .pd-container {
+    padding: 14px;
+    padding-top: 70px;
+    gap: 20px;
+  }
+
+  .pd-back-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .pd-image-section {
+    gap: 10px;
+  }
+
+  .pd-thumbnails {
+    gap: 8px;
+  }
+
+  .pd-thumbnail {
+    width: 52px;
+    height: 52px;
+  }
+
+  .pd-main-image {
+    width: 100%;
+    height: 260px;
+  }
+
+  .pd-name {
+    font-size: 21px;
+  }
+
+  .pd-category {
+    font-size: 14px;
+  }
+
+  .pd-description {
+    font-size: 14px;
+    line-height: 24px;
+    margin-top: 12px;
+  }
+
+  .pd-price {
+    font-size: 26px;
+    margin-top: 16px;
+  }
+
+  .pd-qty-row {
+    margin-top: 18px;
+  }
+
+  .pd-add-to-cart-btn {
+    padding: 12px 28px;
+    font-size: 15px;
+    max-width: 100%;
+  }
+
+  .pd-modal-box {
+    padding: 20px;
+  }
+
+  .pd-modal-title {
+    font-size: 22px;
+  }
+
+  .pd-modal-actions {
+    flex-direction: column;
+  }
+
+  .pd-modal-continue-btn,
+  .pd-modal-cart-btn {
+    width: 100%;
+  }
+
+}

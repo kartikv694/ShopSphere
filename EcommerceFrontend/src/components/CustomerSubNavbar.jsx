@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./Navbar.css";
 import { FaBars } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { clearSession, getStoredUser } from "../utils/auth";
+import { logout, getStoredUser } from "../utils/auth";
 
 function CustomerSubNavbar() {
 
@@ -14,9 +14,9 @@ function CustomerSubNavbar() {
   const user = getStoredUser();
 
   // LOGOUT
-  const handleLogout = () => {
+  const handleLogout = async () => {
 
-    clearSession();
+    await logout();
 
     navigate("/login");
 

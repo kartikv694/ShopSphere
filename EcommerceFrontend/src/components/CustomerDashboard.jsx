@@ -9,6 +9,8 @@ import TrendingProducts from "./customer/TrendingProducts";
 import Recommendations from "./customer/Recommendations";
 import RecentlyViewed from "./customer/RecentlyViewed";
 import { API_BASE_URL } from "../utils/auth";
+import { addToCart as addToCartApi } from "../utils/cartApi";
+import "./CustomerDashboard.css";
 
 function CustomerDashboard() {
 
@@ -213,53 +215,27 @@ function CustomerDashboard() {
   };
 
   // ADD TO CART
-  const handleAddToCart = (
+  const handleAddToCart = async (
     product
   ) => {
 
-    let cart =
-      JSON.parse(
-        localStorage.getItem("cart")
-      ) || [];
+    try {
 
-    const existingProductIndex =
-      cart.findIndex(
-        (item) =>
-          item.id === product.id
+      await addToCartApi(product, 1);
+
+      toast.success(
+        "Product added to cart 🛒"
       );
 
-    if (
-      existingProductIndex !== -1
-    ) {
+    } catch (error) {
 
-      cart[
-        existingProductIndex
-      ].quantity += 1;
+      console.log(error);
 
-    } else {
-
-      cart.push({
-
-        ...product,
-
-        quantity: 1
-
-      });
+      toast.error(
+        "Please login to add items to your cart"
+      );
 
     }
-
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(cart)
-    );
-
-    window.dispatchEvent(
-      new Event("cartUpdated")
-    );
-
-    toast.success(
-      "Product added to cart 🛒"
-    );
 
   };
 
@@ -268,13 +244,7 @@ function CustomerDashboard() {
 
     return (
 
-      <div
-        style={{
-          background: "#eaeded",
-          minHeight: "100vh",
-          paddingBottom: "50px"
-        }}
-      >
+      <div className="cd-dashboard-home">
 
         <HeroSection />
 
@@ -295,91 +265,38 @@ function CustomerDashboard() {
   // ================= CATEGORY PRODUCTS PAGE =================
   return (
 
-    <div
-      style={{
-        background: "#f5f5f5",
-        minHeight: "100vh",
-        width: "100%",
-        padding: "30px",
-        boxSizing: "border-box"
-      }}
-    >
+    <div className="cd-category-page">
 
       {/* PAGE TITLE */}
-      <h1
-        style={{
-          color: "black",
-          fontSize: "42px",
-          fontWeight: "700",
-          marginBottom: "30px",
-          textTransform: "capitalize"
-        }}
-      >
+      <h1 className="cd-category-title">
         {category}
       </h1>
 
       {/* NO PRODUCTS */}
       {products.length === 0 ? (
 
-        <h2
-          style={{
-            color: "black",
-            fontWeight: "400"
-          }}
-        >
+        <h2 className="cd-no-products">
           No Products Found
         </h2>
 
       ) : (
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(3, 1fr)",
-            gap: "28px",
-            width: "100%"
-          }}
-        >
+        <div className="cd-products-grid">
 
           {products.map((product) => (
 
             <div
               key={product.id}
-              style={{
-                background: "white",
-                borderRadius: "18px",
-                overflow: "hidden",
-                boxShadow:
-                  "0 4px 14px rgba(0,0,0,0.08)",
-                transition: "0.3s",
-                display: "flex",
-                flexDirection: "column",
-                padding: "20px"
-              }}
+              className="cd-product-card"
             >
 
               {/* PRODUCT IMAGE */}
               <Link
                 to={`/customer/products/${product.id}`}
-                style={{
-                  textDecoration: "none"
-                }}
+                className="cd-product-link"
               >
 
-                <div
-                  style={{
-                    position: "relative",
-                    width: "100%",
-                    height: "220px",
-                    marginBottom: "15px",
-                    background: "#f7f7f7",
-                    borderRadius: "12px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center"
-                  }}
-                >
+                <div className="cd-product-image-wrap">
 
                   <img
                     src={
@@ -391,12 +308,7 @@ function CustomerDashboard() {
                       "https://via.placeholder.com/250"
                     }
                     alt={product.name}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                      cursor: "pointer"
-                    }}
+                    className="cd-product-image"
                   />
 
                   {product.imageUrls
@@ -413,26 +325,7 @@ function CustomerDashboard() {
                             e
                           )
                         }
-                        style={{
-                          position: "absolute",
-                          left: "6px",
-                          padding: "0",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          width: "34px",
-                          height: "34px",
-                          minWidth: "34px",
-                          borderRadius: "50%",
-                          border: "none",
-                          background: "white",
-                          cursor: "pointer",
-                          fontSize: "22px",
-                          fontWeight: "bold",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
-                        }}
+                        className="cd-slider-btn cd-slider-left"
                       >
                         &#10094;
                       </button>
@@ -446,26 +339,7 @@ function CustomerDashboard() {
                             e
                           )
                         }
-                        style={{
-                          position: "absolute",
-                          right: "6px",
-                          padding: "0",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          width: "34px",
-                          height: "34px",
-                          minWidth: "34px",
-                          borderRadius: "50%",
-                          border: "none",
-                          background: "white",
-                          cursor: "pointer",
-                          fontSize: "22px",
-                          fontWeight: "bold",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
-                        }}
+                        className="cd-slider-btn cd-slider-right"
                       >
                         &#10095;
                       </button>
@@ -481,45 +355,20 @@ function CustomerDashboard() {
               {/* PRODUCT DETAILS */}
               <Link
                 to={`/customer/products/${product.id}`}
-                style={{
-                  textDecoration: "none"
-                }}
+                className="cd-product-link"
               >
 
-                <h2
-                  style={{
-                    color: "black",
-                    fontSize: "20px",
-                    fontWeight: "600",
-                    lineHeight: "30px",
-                    marginBottom: "10px",
-                    minHeight: "70px"
-                  }}
-                >
+                <h2 className="cd-product-name">
                   {product.name}
                 </h2>
 
               </Link>
 
-              <p
-                style={{
-                  color: "#666",
-                  fontSize: "15px",
-                  marginBottom: "14px",
-                  textTransform: "capitalize"
-                }}
-              >
+              <p className="cd-product-category">
                 {product.category}
               </p>
 
-              <h3
-                style={{
-                  color: "black",
-                  fontSize: "30px",
-                  fontWeight: "700",
-                  marginBottom: "20px"
-                }}
-              >
+              <h3 className="cd-product-price">
                 ₹{product.price}
               </h3>
 
@@ -527,17 +376,7 @@ function CustomerDashboard() {
                 onClick={() =>
                   handleAddToCart(product)
                 }
-                style={{
-                  marginTop: "auto",
-                  padding: "14px",
-                  background: "#FFD814",
-                  border: "none",
-                  borderRadius: "30px",
-                  cursor: "pointer",
-                  fontWeight: "600",
-                  fontSize: "16px",
-                  width: "100%"
-                }}
+                className="cd-add-to-cart-btn"
               >
                 Add To Cart
               </button>

@@ -8,6 +8,7 @@ import {
   FaChevronRight
 } from "react-icons/fa";
 import { API_BASE_URL } from "../utils/auth";
+import { addToCart } from "../utils/cartApi";
 
 function Products() {
 
@@ -104,41 +105,33 @@ function Products() {
   };
 
   // ADD TO CART
-  const handleAddToCart = (product) => {
+  const handleAddToCart = async (product) => {
 
-    let cart =
-      JSON.parse(localStorage.getItem("cart")) || [];
+    if (!localStorage.getItem("token")) {
 
-    const existingProductIndex =
-      cart.findIndex(
-        (item) => item.id === product.id
-      );
-
-    if (existingProductIndex !== -1) {
-
-      cart[existingProductIndex].quantity += 1;
-
-    } else {
-
-      cart.push({
-        ...product,
-        quantity: 1
-      });
+      toast.info("Please login to add items to your cart");
+      navigate("/login");
+      return;
 
     }
 
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(cart)
-    );
+    try {
 
-    window.dispatchEvent(
-      new Event("cartUpdated")
-    );
+      await addToCart(product, 1);
 
-    toast.success(
-      "Product added to cart 🛒"
-    );
+      toast.success(
+        "Product added to cart 🛒"
+      );
+
+    } catch (error) {
+
+      console.log(error);
+
+      toast.error(
+        "Could not add item to cart"
+      );
+
+    }
 
   };
 
@@ -188,17 +181,7 @@ function Products() {
 
               {/* IMAGE SECTION */}
 
-              <div
-                style={{
-                  position: "relative",
-                  width: "100%",
-                  height: "260px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "white"
-                }}
-              >
+              <div className="image-wrapper">
 
                 {/* LEFT ARROW */}
 
@@ -212,25 +195,7 @@ function Products() {
                         e
                       )
                     }
-                    style={{
-                      position: "absolute",
-                      left: "8px",
-                      top: "45%",
-                      transform: "translateY(-45%)",
-                      width: "34px",
-                      height: "34px",
-                      minWidth: "34px",
-                      borderRadius: "50%",
-                      border: "none",
-                      background: "white",
-                      boxShadow:
-                        "0 2px 8px rgba(0,0,0,0.2)",
-                      cursor: "pointer",
-                      zIndex: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center"
-                    }}
+                    className="slider-btn left-btn"
                   >
                     <FaChevronLeft />
                   </button>
@@ -246,11 +211,6 @@ function Products() {
                     ]
                   }
                   alt={product.name}
-                  style={{
-                    width: "100%",
-                    height: "260px",
-                    objectFit: "cover"
-                  }}
                 />
 
                 {/* RIGHT ARROW */}
@@ -265,25 +225,7 @@ function Products() {
                         e
                       )
                     }
-                    style={{
-                      position: "absolute",
-                      right: "8px",
-                      top: "45%",
-                      transform: "translateY(-45%)",
-                      width: "34px",
-                      height: "34px",
-                      minWidth: "34px",
-                      borderRadius: "50%",
-                      border: "none",
-                      background: "white",
-                      boxShadow:
-                        "0 2px 8px rgba(0,0,0,0.2)",
-                      cursor: "pointer",
-                      zIndex: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center"
-                    }}
+                    className="slider-btn right-btn"
                   >
                     <FaChevronRight />
                   </button>
@@ -296,14 +238,7 @@ function Products() {
 
               <h3>{product.name}</h3>
 
-              <p
-                style={{
-                  color: "#666",
-                  padding: "0 20px",
-                  marginBottom: "14px",
-                  textTransform: "capitalize"
-                }}
-              >
+              <p className="product-category">
                 {product.category}
               </p>
 

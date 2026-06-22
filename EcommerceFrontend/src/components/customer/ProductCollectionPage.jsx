@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "../../utils/auth";
+import { addToCart as addToCartApi } from "../../utils/cartApi";
 import "./Customer.css";
 
 const formatPrice = (value) =>
@@ -81,24 +82,14 @@ function ProductCollectionPage({ type }) {
       .slice(0, 12);
   }, [isNewReleases, products]);
 
-  const handleAddToCart = (product) => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const existingProductIndex = cart.findIndex(
-      (item) => item.id === product.id
-    );
-
-    if (existingProductIndex !== -1) {
-      cart[existingProductIndex].quantity += 1;
-    } else {
-      cart.push({
-        ...product,
-        quantity: 1
-      });
+  const handleAddToCart = async (product) => {
+    try {
+      await addToCartApi(product, 1);
+      toast.success("Product added to cart");
+    } catch (error) {
+      console.log(error);
+      toast.error("Please login to add items to your cart");
     }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    window.dispatchEvent(new Event("cartUpdated"));
-    toast.success("Product added to cart");
   };
 
   return (

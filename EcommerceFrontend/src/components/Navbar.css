@@ -603,3 +603,84 @@
     height: 55%;
   }
 }
+
+/* ===================== ADMIN NAVBAR RESPONSIVE ===================== */
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 60px;
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .navbar-brand {
+    flex: 1;
+  }
+
+  .admin-name {
+    display: none;
+  }
+
+  .search-container {
+    order: 3;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .category-select {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 8px 12px;
+  }
+
+  .logo {
+    font-size: 16px;
+  }
+
+  .admin-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .search-input {
+    font-size: 13px;
+  }
+}
+
+/* ===================== CUSTOMER NAVBAR — SMALL PHONES ===================== */
+
+@media (max-width: 480px) {
+  .customer-navbar {
+    padding: 10px 12px;
+  }
+
+  .customer-navbar .logo {
+    font-size: 16px;
+  }
+
+  .customer-navbar .address-box {
+    max-width: 130px;
+    font-size: 12px;
+  }
+
+  .customer-navbar .nav-right {
+    gap: 8px;
+  }
+
+  .search-input {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .user-menu-btn {
+    width: 30px;
+    height: 30px;
+  }
+}
+

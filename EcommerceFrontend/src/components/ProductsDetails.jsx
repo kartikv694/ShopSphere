@@ -6,7 +6,11 @@ import {
 } from "react-router-dom";
 
 import { Modal } from "flowbite-react";
+import { toast } from "react-toastify";
 import { API_BASE_URL } from "../utils/auth";
+import { addToCart } from "../utils/cartApi";
+import { recordRecentlyViewed } from "../utils/userPreferencesApi";
+import "./ProductsDetails.css";
 
 function ProductDetails() {
 
@@ -33,74 +37,34 @@ function ProductDetails() {
 
         setProduct(data);
 
-        // GET OLD RECENTLY VIEWED PRODUCTS
-        let recentlyViewed =
-          JSON.parse(
-            localStorage.getItem("recentlyViewed")
-          ) || [];
-
-        // REMOVE SAME PRODUCT IF EXISTS
-        recentlyViewed =
-          recentlyViewed.filter(
-            (item) => item.id !== data.id
-          );
-
-        // ADD CURRENT PRODUCT AT TOP
-        recentlyViewed.unshift(data);
-
-        // KEEP ONLY LAST 6 PRODUCTS
-        recentlyViewed =
-          recentlyViewed.slice(0, 6);
-
-        // SAVE
-        localStorage.setItem(
-          "recentlyViewed",
-          JSON.stringify(recentlyViewed)
-        );
+        // RECORD THIS VIEW — syncs to the server so "Recently Viewed"
+        // follows the account into any other browser/device, and keeps
+        // the local mirror in sync for components reading it directly.
+        recordRecentlyViewed(data);
 
       });
 
   }, [id]);
 
   // ADD TO CART
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
 
-    let cart =
-      JSON.parse(localStorage.getItem("cart")) || [];
+    try {
 
-    const existingProductIndex = cart.findIndex(
-      (item) => item.id === product.id
-    );
+      await addToCart(product, quantity);
 
-    // PRODUCT EXISTS
-    if (existingProductIndex !== -1) {
+      // SHOW MODAL
+      setOpenModal(true);
 
-      cart[existingProductIndex].quantity += quantity;
+    } catch (error) {
 
-    }
+      console.log(error);
 
-    // NEW PRODUCT
-    else {
-
-      cart.push({
-        ...product,
-        quantity: quantity
-      });
+      toast.error(
+        "Please login to add items to your cart"
+      );
 
     }
-
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(cart)
-    );
-
-    // UPDATE CART COUNT
-    window.dispatchEvent(
-      new Event("cartUpdated")
-    );
-
-    // SHOW MODAL
-    setOpenModal(true);
 
   };
 
@@ -123,7 +87,7 @@ function ProductDetails() {
 
   if (!product) {
 
-    return <h2>Loading...</h2>;
+    return <h2 className="pd-loading">Loading...</h2>;
 
   }
 
@@ -131,36 +95,24 @@ function ProductDetails() {
 
     <>
 
-      <div style={styles.container}>
+      <div className="pd-container">
 
         {/* LEFT SIDE */}
-        <div>
+        <div className="pd-left">
 
           {/* BACK BUTTON */}
           <button
             onClick={handleBack}
-            style={styles.backButton}
+            className="pd-back-btn"
           >
             ← Back
           </button>
 
           {/* IMAGE SECTION */}
-          <div
-            style={{
-              display: "flex",
-              gap: "18px",
-              alignItems: "flex-start"
-            }}
-          >
+          <div className="pd-image-section">
 
             {/* THUMBNAILS */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px"
-              }}
-            >
+            <div className="pd-thumbnails">
 
               {product.imageUrls?.map(
                 (image, index) => (
@@ -172,20 +124,12 @@ function ProductDetails() {
                     onClick={() =>
                       setSelectedImage(index)
                     }
-                    style={{
-                      width: "75px",
-                      height: "75px",
-                      objectFit: "contain",
-                      border:
-                        selectedImage === index
-                          ? "2px solid #ff9900"
-                          : "1px solid #ddd",
-                      borderRadius: "10px",
-                      cursor: "pointer",
-                      padding: "5px",
-                      background: "white",
-                      transition: "0.3s"
-                    }}
+                    className={
+                      "pd-thumbnail" +
+                      (selectedImage === index
+                        ? " pd-thumbnail-active"
+                        : "")
+                    }
                   />
 
                 )
@@ -202,7 +146,7 @@ function ProductDetails() {
                 "https://via.placeholder.com/300"
               }
               alt={product.name}
-              style={styles.image}
+              className="pd-main-image"
             />
 
           </div>
@@ -210,49 +154,42 @@ function ProductDetails() {
         </div>
 
         {/* DETAILS */}
-        <div style={styles.details}>
+        <div className="pd-details">
 
-          <h1>{product.name}</h1>
+          <h1 className="pd-name">{product.name}</h1>
 
-          <p style={styles.category}>
+          <p className="pd-category">
             {product.category}
           </p>
 
-          <p style={styles.description}>
+          <p className="pd-description">
             {product.description}
           </p>
 
-          <h2 style={styles.price}>
+          <h2 className="pd-price">
             ₹{product.price}
           </h2>
 
           {/* QUANTITY */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "15px",
-              marginTop: "25px"
-            }}
-          >
+          <div className="pd-qty-row">
 
             <button
               onClick={() =>
                 quantity > 1 &&
                 setQuantity(quantity - 1)
               }
-              style={styles.qtyBtn}
+              className="pd-qty-btn"
             >
               -
             </button>
 
-            <h3>{quantity}</h3>
+            <h3 className="pd-qty-value">{quantity}</h3>
 
             <button
               onClick={() =>
                 setQuantity(quantity + 1)
               }
-              style={styles.qtyBtn}
+              className="pd-qty-btn"
             >
               +
             </button>
@@ -261,7 +198,7 @@ function ProductDetails() {
 
           {/* ADD TO CART */}
           <button
-            style={styles.button}
+            className="pd-add-to-cart-btn"
             onClick={handleAddToCart}
           >
             Add to Cart
@@ -277,54 +214,21 @@ function ProductDetails() {
         onClose={() => setOpenModal(false)}
       >
 
-        <div
-          style={{
-            background: "white",
-            padding: "30px",
-            borderRadius: "14px",
-            width: "450px",
-            maxWidth: "90vw"
-          }}
-        >
+        <div className="pd-modal-box">
 
-          <h2
-            style={{
-              fontSize: "28px",
-              fontWeight: "700",
-              marginBottom: "20px"
-            }}
-          >
+          <h2 className="pd-modal-title">
             Product Added 🛒
           </h2>
 
-          <p
-            style={{
-              fontSize: "17px",
-              marginBottom: "30px",
-              color: "#4B5563"
-            }}
-          >
+          <p className="pd-modal-text">
             Product added to cart successfully.
           </p>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "15px"
-            }}
-          >
+          <div className="pd-modal-actions">
 
             <button
               onClick={() => setOpenModal(false)}
-              style={{
-                padding: "12px 24px",
-                background: "#2563EB",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontWeight: "600"
-              }}
+              className="pd-modal-continue-btn"
             >
               Continue Shopping
             </button>
@@ -333,15 +237,7 @@ function ProductDetails() {
               onClick={() =>
                 navigate("/customer/cart")
               }
-              style={{
-                padding: "12px 24px",
-                background: "green",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontWeight: "600"
-              }}
+              className="pd-modal-cart-btn"
             >
               Go To Cart
             </button>
@@ -357,88 +253,5 @@ function ProductDetails() {
   );
 
 }
-
-const styles = {
-
-  container: {
-    display: "flex",
-    gap: "60px",
-    padding: "40px",
-    paddingTop: "90px",
-    background: "#fff",
-    minHeight: "100vh"
-  },
-
-  backButton: {
-    marginBottom: "20px",
-    padding: "10px 20px",
-    background: "#232F3E",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "15px",
-    fontWeight: "500"
-  },
-
-  image: {
-    width: "500px",
-    height: "500px",
-    objectFit: "contain",
-    background: "white",
-    borderRadius: "14px"
-  },
-
-  details: {
-    flex: 1,
-    marginTop: "45px"
-  },
-
-  category: {
-    color: "#565959",
-    marginTop: "10px",
-    textTransform: "capitalize",
-    fontSize: "17px"
-  },
-
-  description: {
-    marginTop: "20px",
-    fontSize: "17px",
-    lineHeight: "30px",
-    color: "#333"
-  },
-
-  price: {
-    marginTop: "25px",
-    color: "#B12704",
-    fontSize: "42px",
-    fontWeight: "700"
-  },
-
-  button: {
-    marginTop: "30px",
-    padding: "14px 40px",
-    background: "#FFD814",
-    border: "none",
-    color: "black",
-    fontSize: "18px",
-    cursor: "pointer",
-    borderRadius: "30px",
-    fontWeight: "600",
-    transition: "0.3s"
-  },
-
-  qtyBtn: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    border: "1px solid #ccc",
-    background: "#f0f2f2",
-    cursor: "pointer",
-    fontSize: "20px",
-    fontWeight: "bold"
-  }
-
-};
 
 export default ProductDetails;

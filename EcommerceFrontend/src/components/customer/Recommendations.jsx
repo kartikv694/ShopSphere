@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import "./Customer.css";
 import { API_BASE_URL } from "../../utils/auth";
+import { addToCart as addToCartApi } from "../../utils/cartApi";
 
 function Recommendations() {
 
@@ -48,41 +49,25 @@ function Recommendations() {
   }, []);
 
   // ADD TO CART
-  const handleAddToCart = (product) => {
+  const handleAddToCart = async (product) => {
 
-    let cart =
-      JSON.parse(localStorage.getItem("cart")) || [];
+    try {
 
-    const existingProductIndex =
-      cart.findIndex(
-        (item) => item.id === product.id
+      await addToCartApi(product, 1);
+
+      toast.success(
+        "Product added to cart 🛒"
       );
 
-    if (existingProductIndex !== -1) {
+    } catch (error) {
 
-      cart[existingProductIndex].quantity += 1;
+      console.log(error);
 
-    } else {
-
-      cart.push({
-        ...product,
-        quantity: 1
-      });
+      toast.error(
+        "Please login to add items to your cart"
+      );
 
     }
-
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(cart)
-    );
-
-    window.dispatchEvent(
-      new Event("cartUpdated")
-    );
-
-    toast.success(
-      "Product added to cart 🛒"
-    );
 
   };
 

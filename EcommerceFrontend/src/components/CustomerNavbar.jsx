@@ -1,8 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import "./Navbar.css";
 import { useNavigate } from "react-router-dom";
-import { clearSession, getStoredUser } from "../utils/auth";
+import { logout, getStoredUser } from "../utils/auth";
 import { SearchContext } from "./SearchContextValue";
+import {
+  saveLocation as saveLocationApi,
+  syncSavedLocationFromServer,
+  getCachedLocation
+} from "../utils/userPreferencesApi";
 
 import {
   FaSearch,
@@ -80,15 +85,7 @@ function CustomerNavbar() {
 
   const [savedLocation,
     setSavedLocation] =
-      useState(
-
-        JSON.parse(
-          localStorage.getItem(
-            "selectedLocation"
-          )
-        )
-
-      );
+      useState(getCachedLocation());
 
   const [showUserMenu,
     setShowUserMenu] =
@@ -141,7 +138,11 @@ function CustomerNavbar() {
 
       };
 
-    updateLocation();
+    // PULL THE AUTHORITATIVE LOCATION FROM THE SERVER ON MOUNT —
+    // this is what makes a location set in another browser appear here.
+    syncSavedLocationFromServer().then((loc) => {
+      if (loc) setSavedLocation(loc);
+    });
 
     window.addEventListener(
       "locationUpdated",
@@ -320,13 +321,8 @@ function CustomerNavbar() {
 
   };
 
-  localStorage.setItem(
-
-    "selectedLocation",
-
-    JSON.stringify(loc)
-
-  );
+  // SAVE TO SERVER (cross-device sync) and mirror in localStorage
+  saveLocationApi(loc).catch(console.log);
 
   setSavedLocation(loc);
 
@@ -342,9 +338,9 @@ function CustomerNavbar() {
 
 };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
 
-    clearSession();
+    await logout();
     setShowUserMenu(false);
     navigate("/");
 

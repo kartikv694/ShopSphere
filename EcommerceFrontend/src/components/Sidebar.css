@@ -70,3 +70,73 @@
 .sidebar-logout:hover {
   background: rgba(239,68,68,0.2);
 }
+
+/* ===================== RESPONSIVE ===================== */
+
+@media (max-width: 992px) {
+  .sidebar {
+    width: 72px;
+    padding: 16px 8px;
+  }
+
+  .sidebar-label {
+    display: none;
+  }
+
+  .sidebar-item,
+  .sidebar-logout {
+    justify-content: center;
+    padding: 12px 8px;
+  }
+
+  .sidebar-logout span:last-child {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-body {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    flex: none;
+    gap: 6px;
+  }
+
+  .sidebar-item {
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+
+  .sidebar-label {
+    display: block;
+    font-size: 11px;
+  }
+
+  .sidebar-logout {
+    width: auto;
+    margin-top: 0;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+  }
+
+  .sidebar-logout span:last-child {
+    display: block;
+    font-size: 11px;
+  }
+}
+

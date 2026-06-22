@@ -4,6 +4,11 @@ import { Link, useNavigate } from "react-router-dom";
 import "./auth.css";
 import "react-toastify/dist/ReactToastify.css";
 import { API_BASE_URL, setSession } from "../utils/auth";
+import { syncCartFromServer } from "../utils/cartApi";
+import {
+  syncSavedLocationFromServer,
+  syncRecentlyViewedFromServer
+} from "../utils/userPreferencesApi";
 
 function Login() {
   const [loginData, setLoginData] = useState({
@@ -37,6 +42,13 @@ function Login() {
 
         setSession(data);
         toast.success("Login successful");
+
+        // Admins don't have a cart, location, or recently-viewed list.
+        if (data.role !== "ADMIN") {
+          syncCartFromServer();
+          syncSavedLocationFromServer();
+          syncRecentlyViewedFromServer();
+        }
 
         setLoginData({
           email: "",

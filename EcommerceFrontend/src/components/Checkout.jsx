@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,12 @@ import {
   FaTimes
 } from "react-icons/fa";
 import { API_BASE_URL, getAuthHeaders, getStoredUser } from "../utils/auth";
+import { syncCartFromServer, clearCart as clearCartApi } from "../utils/cartApi";
+import {
+  saveLocation as saveLocationApi,
+  syncSavedLocationFromServer,
+  getCachedLocation
+} from "../utils/userPreferencesApi";
 import "./Checkout.css";
 
 const formatPrice = (value) =>
@@ -36,17 +42,40 @@ const loadScript = (src) =>
 function Checkout() {
   const navigate = useNavigate();
   const user = getStoredUser();
-  const initialSavedLocation = JSON.parse(
-    localStorage.getItem("selectedLocation")
-  );
+  const initialSavedLocation = getCachedLocation();
 
-  const [cartItems] = useState(
+  const [cartItems, setCartItems] = useState(
     () => JSON.parse(localStorage.getItem("cart")) || []
   );
   const [savedLocation, setSavedLocation] = useState(initialSavedLocation);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [paymentScreen, setPaymentScreen] = useState(null);
   const [selectedGateway, setSelectedGateway] = useState("Razorpay");
+
+  // Reconcile cart from server before checkout begins.
+  useEffect(() => {
+    syncCartFromServer().then((items) => setCartItems(items));
+  }, []);
+
+  // Pull the authoritative saved address from the server so a location
+  // chosen in another browser/device shows up in the checkout form here.
+  useEffect(() => {
+    syncSavedLocationFromServer().then((loc) => {
+      if (loc) {
+        setSavedLocation(loc);
+        // Pre-fill form fields if still empty (user hasn't typed anything yet)
+        setFormData((prev) => ({
+          ...prev,
+          fullName: prev.fullName || loc.fullName || user?.name || "",
+          phone: prev.phone || loc.phone || "",
+          address: prev.address || loc.fullAddress || loc.address || "",
+          city: prev.city || loc.city || "",
+          state: prev.state || loc.state || "",
+          pincode: prev.pincode || loc.pincode || ""
+        }));
+      }
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [formData, setFormData] = useState({
     fullName: initialSavedLocation?.fullName || user?.name || "",
@@ -97,7 +126,10 @@ function Checkout() {
       pincode: formData.pincode
     };
 
-    localStorage.setItem("selectedLocation", JSON.stringify(locationData));
+    // Persist to server so the same address appears on any other
+    // browser/device the user opens next time.
+    saveLocationApi(locationData).catch(console.log);
+
     setSavedLocation(locationData);
     toast.success("Address saved successfully");
     window.dispatchEvent(new Event("locationUpdated"));
@@ -154,8 +186,16 @@ function Checkout() {
     });
 
     toast.success("Order placed successfully");
-    localStorage.removeItem("cart");
-    window.dispatchEvent(new Event("cartUpdated"));
+
+    try {
+      await clearCartApi();
+    } catch (error) {
+      console.log(error);
+      // Non-fatal — the order already went through, so just fall back to
+      // clearing the local mirror so the UI doesn't show stale items.
+      localStorage.removeItem("cart");
+      window.dispatchEvent(new Event("cartUpdated"));
+    }
 
     setTimeout(() => {
       navigate("/customer/my-orders");

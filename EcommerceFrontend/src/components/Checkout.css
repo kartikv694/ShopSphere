@@ -604,3 +604,41 @@
   }
 
 }
+
+@media(max-width: 480px){
+
+  .checkout-page{
+    padding: 12px;
+  }
+
+  .checkout-left,
+  .checkout-right{
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  .checkout-left h1{
+    font-size: 24px;
+  }
+
+  .summary-item img{
+    width: 60px;
+    height: 60px;
+  }
+
+  .summary-item h4{
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .summary-item p{
+    font-size: 13px;
+  }
+
+  .place-order-btn{
+    width: 100%;
+    font-size: 15px;
+    padding: 14px;
+  }
+
+}

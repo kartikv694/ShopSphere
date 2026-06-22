@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
-import { clearSession } from "../utils/auth";
+import { logout } from "../utils/auth";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -9,8 +9,8 @@ const Sidebar = () => {
   const getClass = (path) =>
     `sidebar-item ${location.pathname === path ? "active" : ""}`;
 
-  const handleLogout = () => {
-    clearSession();
+  const handleLogout = async () => {
+    await logout();
     navigate("/");
   };
 

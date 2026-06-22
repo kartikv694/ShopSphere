@@ -152,3 +152,41 @@
     height: 240px;
   }
 }
+
+@media(max-width: 480px) {
+  .dashboard-container {
+    padding: 12px;
+  }
+
+  .dashboard-title {
+    font-size: 24px;
+  }
+
+  .stat-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .stat-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 20px;
+  }
+
+  .stat-value {
+    font-size: 22px;
+  }
+
+  .chart-card {
+    padding: 16px;
+  }
+
+  .chart-canvas-wrap {
+    height: 200px;
+  }
+}

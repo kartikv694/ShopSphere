@@ -1,50 +1,62 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./Customer.css";
+import { addToCart as addToCartApi } from "../../utils/cartApi";
+import {
+  syncRecentlyViewedFromServer,
+  getCachedRecentlyViewed
+} from "../../utils/userPreferencesApi";
 
 function RecentlyViewed() {
 
-  const [products] = useState(
-    () => JSON.parse(localStorage.getItem("recentlyViewed")) || []
+  const [products, setProducts] = useState(
+    () => getCachedRecentlyViewed()
   );
 
+  // PULL THE AUTHORITATIVE LIST FROM THE SERVER ON MOUNT — this is what
+  // surfaces products viewed in a different browser/device for this
+  // account, and keeps re-rendering in sync if it changes elsewhere on
+  // this page (e.g. right after viewing a product just now).
+  useEffect(() => {
+
+    let isMounted = true;
+
+    syncRecentlyViewedFromServer().then((items) => {
+      if (isMounted) setProducts(items);
+    });
+
+    const onUpdated = () => setProducts(getCachedRecentlyViewed());
+
+    window.addEventListener("recentlyViewedUpdated", onUpdated);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener("recentlyViewedUpdated", onUpdated);
+    };
+
+  }, []);
+
   // ADD TO CART
-  const handleAddToCart = (product) => {
+  const handleAddToCart = async (product) => {
 
-    let cart =
-      JSON.parse(localStorage.getItem("cart")) || [];
+    try {
 
-    const existingProductIndex =
-      cart.findIndex(
-        (item) => item.id === product.id
+      await addToCartApi(product, 1);
+
+      toast.success(
+        "Product added to cart 🛒"
       );
 
-    if (existingProductIndex !== -1) {
+    } catch (error) {
 
-      cart[existingProductIndex].quantity += 1;
+      console.log(error);
 
-    } else {
-
-      cart.push({
-        ...product,
-        quantity: 1
-      });
+      toast.error(
+        "Please login to add items to your cart"
+      );
 
     }
-
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(cart)
-    );
-
-    window.dispatchEvent(
-      new Event("cartUpdated")
-    );
-
-    toast.success(
-      "Product added to cart 🛒"
-    );
 
   };
 

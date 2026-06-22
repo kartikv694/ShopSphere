@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { API_BASE_URL, setSession, hasValidSession, getRole } from "../utils/auth";
+import { syncCartFromServer } from "../utils/cartApi";
+import {
+  syncSavedLocationFromServer,
+  syncRecentlyViewedFromServer
+} from "../utils/userPreferencesApi";
 import "./home.css";
 
 function Home() {
@@ -37,6 +42,13 @@ function Home() {
         const data = await res.json();
         setSession(data);
         toast.success("Welcome back! 🎉");
+
+        // Admins don't have a cart, location, or recently-viewed list.
+        if (data.role !== "ADMIN") {
+          syncCartFromServer();
+          syncSavedLocationFromServer();
+          syncRecentlyViewedFromServer();
+        }
         setTimeout(() => {
           if (data.role === "ADMIN") navigate("/admin/dashboard");
           else navigate("/customer/dashboard");
