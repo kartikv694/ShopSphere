@@ -80,4 +80,18 @@
         </classes>
     </test>
 
+    <!-- US019 Day 44: Validate Checkout Flow -->
+    <test name="T096-T097: Checkout Flow Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.CheckoutFlowTest"/>
+        </classes>
+    </test>
+
+    <!-- US019 Day 45: Negative Test Cases for Checkout Flow -->
+    <test name="Day 45: Checkout Negative Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.CheckoutNegativeTest"/>
+        </classes>
+    </test>
+
 </suite>
