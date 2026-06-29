@@ -94,4 +94,11 @@
         </classes>
     </test>
 
+    <!-- US020 Day 46: Validate Payment & Order Summary -->
+    <test name="T101-T104: Payment and Order Summary Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.PaymentOrderSummaryTest"/>
+        </classes>
+    </test>
+
 </suite>
