@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./AddProduct.css";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "../utils/auth";
 
 function AddProduct() {
+  const navigate = useNavigate();
   const [images, setImages] = useState([null, null, null, null]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -67,6 +69,9 @@ function AddProduct() {
       setDescription("");
       setPrice("");
       setCategory("");
+
+      // navigate away from the add-product form back to the listing
+      navigate("/admin/products");
 
     } catch (error) {
       console.error(error);

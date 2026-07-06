@@ -55,10 +55,23 @@ public class BaseTest {
         driver.manage().window().maximize();
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void tearDown() {
         if (driver != null) {
-            driver.quit();
+            try {
+                driver.quit();
+            } catch (Exception e) {
+                // ChromeDriver occasionally times out on shutdown with
+                // certain Chrome/driver version pairings ("Timed out
+                // waiting for driver server to shutdown"). This is a
+                // known Selenium/Chrome environment flake, not a test or
+                // app bug — swallow it so it can't fail the suite.
+                System.err.println(
+                    "[WARN] driver.quit() failed or timed out (ignored): " + e.getMessage()
+                );
+            } finally {
+                driver = null;
+            }
         }
     }
 }

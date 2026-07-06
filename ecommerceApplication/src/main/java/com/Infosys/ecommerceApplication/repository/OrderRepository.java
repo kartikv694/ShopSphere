@@ -12,10 +12,9 @@ public interface OrderRepository
         extends JpaRepository<Order, Long> {
 
     @EntityGraph(attributePaths = {"orderItems", "orderItems.product", "customer"})
-    List<Order> findByCustomer(User customer);
+    List<Order> findByCustomerOrderByIdDesc(User customer);
 
-    @Override
     @EntityGraph(attributePaths = {"orderItems", "orderItems.product", "customer"})
-    List<Order> findAll();
+    List<Order> findAllByOrderByIdDesc();
 
 }

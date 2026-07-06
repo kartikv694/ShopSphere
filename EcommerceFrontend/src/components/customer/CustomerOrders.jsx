@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { API_BASE_URL, getAuthHeaders } from "../../utils/auth";
@@ -41,6 +41,16 @@ function CustomerOrders() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Tracks the currently selected order id without being captured in the
+  // fetchOrders closure. This avoids a race where a fetch that was already
+  // in-flight when the user closed the details panel resolves afterwards
+  // and re-opens it using a stale reference to the old selectedOrder.
+  const selectedOrderIdRef = useRef(null);
+
+  useEffect(() => {
+    selectedOrderIdRef.current = selectedOrder?.id ?? null;
+  }, [selectedOrder]);
+
   const fetchOrders = useCallback(async (showError = false) => {
     try {
       const response = await axios.get(
@@ -53,9 +63,10 @@ function CustomerOrders() {
       const orderList = Array.isArray(response.data) ? response.data : [];
       setOrders(orderList);
 
-      if (selectedOrder) {
+      const currentSelectedId = selectedOrderIdRef.current;
+      if (currentSelectedId != null) {
         const updatedSelectedOrder = orderList.find(
-          (order) => order.id === selectedOrder.id
+          (order) => order.id === currentSelectedId
         );
         setSelectedOrder(updatedSelectedOrder || null);
       }
@@ -68,7 +79,7 @@ function CustomerOrders() {
     } finally {
       setLoading(false);
     }
-  }, [selectedOrder]);
+  }, []);
 
   useEffect(() => {
     const initialLoadId = setTimeout(() => {

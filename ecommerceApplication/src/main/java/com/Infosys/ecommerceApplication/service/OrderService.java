@@ -149,12 +149,12 @@ public class OrderService {
                                         )
                         );
 
-        return orderRepository.findByCustomer(customer);
+        return orderRepository.findByCustomerOrderByIdDesc(customer);
 
     }
 
     public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+        return orderRepository.findAllByOrderByIdDesc();
     }
 
     @Transactional

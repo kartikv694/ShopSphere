@@ -101,4 +101,25 @@
         </classes>
     </test>
 
+    <!-- Full Admin-Side Automation Suite -->
+    <test name="Admin Automation Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.AdminAutomationTest"/>
+        </classes>
+    </test>
+
+    <!-- Profile Update Automation Suite -->
+    <test name="Profile Update Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.ProfileUpdateTest"/>
+        </classes>
+    </test>
+
+    <!-- Order Update Automation Suite (Customer + Admin) -->
+    <test name="Order Update Tests">
+        <classes>
+            <class name="com.Infosys.ecommerceApplication.automation.tests.OrderUpdateTest"/>
+        </classes>
+    </test>
+
 </suite>
